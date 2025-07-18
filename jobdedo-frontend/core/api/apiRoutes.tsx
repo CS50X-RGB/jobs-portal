@@ -10,6 +10,11 @@ export const accountRoutes = {
   allUsers: "/user/all-users",
   addLang: "/user/add/lang",
   addEducation: "/user/add/education",
+  addExp: "/user/add/exp",
+  updateMineUser: "/user/update-my",
+  updateResume: "/user/update-resume",
+  getCompanies: "/user/employeer/get/company",
+  addCompany: "/user/employeer/add/company",
 };
 export const rolesRoutes = {
   getAll: "/role/all/roles",

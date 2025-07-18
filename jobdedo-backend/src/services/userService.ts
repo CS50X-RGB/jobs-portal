@@ -1,6 +1,12 @@
 import RoleRepository from "../database/repositories/roleRepository";
 import UserRepository from "../database/repositories/userRepository";
-import { ADMIN_EMAIL, ADMIN_USER, ADMIN_PASS } from "../config/config";
+import CompanyRepository from "../database/repositories/companyRepo";
+import {
+  ADMIN_EMAIL,
+  ADMIN_USER,
+  ADMIN_PASS,
+  AWS_BUCKET,
+} from "../config/config";
 import {
   IUserCreate,
   IUserCreateReturn,
@@ -10,13 +16,17 @@ import {
 import { createToken, hashPassword, isMatch } from "../helpers/encrypt";
 import { Response, Request } from "express";
 import mongoose from "mongoose";
+import s3 from "../config/aws_config";
+import fs from "fs";
 
 class UserService {
   private userRepository: UserRepository;
   private roleRepository: RoleRepository;
+  private companyRepo: CompanyRepository;
   constructor() {
     this.userRepository = new UserRepository();
     this.roleRepository = new RoleRepository();
+    this.companyRepo = new CompanyRepository();
   }
   public async createAdmin(): Promise<void> {
     try {
@@ -93,8 +103,8 @@ class UserService {
         );
       }
 
-      const user: Partial<IUserCreate> = req.body;
-      let updateObject: Partial<IUserCreate> = {};
+      const user: any = req.body;
+      let updateObject: any = {};
 
       if (user.name) {
         updateObject.name = user.name;
@@ -113,7 +123,126 @@ class UserService {
         updateObject.role = user.role;
       }
 
+      if (user.dob) {
+        updateObject.dob = user.dob;
+      }
+      if (user.phoneno) {
+        updateObject.phoneno = user.phoneno;
+      }
+      if (user.skills) {
+        updateObject.skills = user.skills;
+      }
       const success = await this.userRepository.updateUser(id, updateObject);
+
+      if (!success) {
+        return res.sendError("Update failed", "Unable to update user", 500);
+      }
+
+      return res.sendFormatted(
+        "User updated successfully",
+        "User Updated",
+        200,
+      );
+    } catch (error: any) {
+      return res.sendError("Internal server error", error.message, 500);
+    }
+  }
+  public async updateResume(req: Request, res: Response) {
+    try {
+      if (!req.files) {
+        return res.sendError(
+          "Error while updating resume",
+          "Resume updation failed",
+          400,
+        );
+      }
+
+      if (!req.user) {
+        return res.sendError("Error not logged in", "Login required", 400);
+      }
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const resume = files?.resume?.[0];
+      console.log(resume, "Resume");
+      const { _id, ...other }: any = req.user;
+      const fileBuffer = fs.readFileSync(resume.path);
+      const params: any = {
+        Bucket: AWS_BUCKET,
+        Key: `resumes/${Date.now()}-${resume.originalname}`,
+        Body: fileBuffer,
+        ContentType: resume.mimetype,
+      };
+      console.log(params, "params");
+      const uploadResult: string = await s3
+        .upload(params)
+        .promise()
+        .then((res) => {
+          return res.Location;
+        })
+        .catch((error) => {
+          console.error("❌ Error uploading file to S3:", error);
+          throw new Error("S3 upload failed");
+        });
+
+      const user = {
+        resume: uploadResult,
+      };
+
+      const updateUser = await this.userRepository.updateUser(_id, user);
+      return res.sendFormatted(updateUser, "User updated", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while updating resume`,
+        "Error while updating resume",
+        400,
+      );
+    }
+  }
+
+  public async updateUserMine(req: Request, res: Response) {
+    try {
+      const { _id }: any = req.user;
+      console.log(req.user, "user object");
+      const existingUser = await this.userRepository.getUserById(_id);
+      console.log(existingUser, "user");
+      if (!existingUser) {
+        return res.sendError(
+          "User not found",
+          "Error while updating user",
+          404,
+        );
+      }
+      console.log(req.body, "body");
+      const user: any = req.body;
+      let updateObject: any = {};
+
+      if (user.name) {
+        updateObject.name = user.name;
+      }
+
+      if (user.password) {
+        const hashedPassword = await hashPassword(user.password);
+        updateObject.password = hashedPassword;
+      }
+
+      if (user.email) {
+        updateObject.email = user.email;
+      }
+
+      if (user.role) {
+        updateObject.role = user.role;
+      }
+
+      if (user.dob) {
+        updateObject.dob = user.dob;
+      }
+      if (user.phoneno) {
+        updateObject.phoneno = user.phoneno;
+      }
+      if (user.skills) {
+        updateObject.skills = user.skills;
+      }
+      const success = await this.userRepository.updateUser(_id, updateObject);
 
       if (!success) {
         return res.sendError("Update failed", "Unable to update user", 500);
@@ -287,6 +416,68 @@ class UserService {
       res.sendFormatted(user, "User Deleted", 204);
     } catch (error) {
       throw new Error(`Error while deleting user`);
+    }
+  }
+
+  public async addExperince(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(`User needs to login`, `User not logged in`, 400);
+      }
+      const userId: any = new mongoose.Types.ObjectId(req.user._id.toString());
+      const { data }: any = req.body;
+      const updateUser = await this.userRepository.createExperinceObject(
+        userId,
+        data,
+      );
+      return res.sendFormatted(
+        updateUser,
+        "User with Experience not there",
+        200,
+      );
+    } catch (error) {
+      return res.sendError(
+        `Error while adding experience`,
+        "Error while adding experience",
+        400,
+      );
+    }
+  }
+
+  public async addCompany(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(`User not logged in`, "User Not logged in", 400);
+      }
+      const { _id, ...other }: any = req.user;
+      const { data } = req.body;
+      const createCompany = await this.companyRepo.createCompany(_id, data);
+      return res.sendFormatted(createCompany, "Company Added", 200);
+    } catch (error) {
+      return res.sendError(
+        `Error while adding Company`,
+        `Error while adding comapny`,
+        400,
+      );
+    }
+  }
+
+  public async getCompanies(req: Request, res: Response) {
+    try {
+      const { search }: any = req.query;
+      let companies = [];
+      if (search != "") {
+        companies = await this.companyRepo.getCompaniesByPrefix(search);
+      } else {
+        companies = await this.companyRepo.getCompaniesByPrefix();
+      }
+      return res.sendArrayFormatted(companies, "Comapnies Fetched", 200);
+    } catch (error) {
+      return res.sendError(
+        `Error while getting companies`,
+        "Error while getting comapnies",
+        400,
+      );
     }
   }
 }

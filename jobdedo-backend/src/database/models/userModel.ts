@@ -5,12 +5,15 @@ export interface IUser extends Document {
   password: string;
   email: string;
   dob: Date;
+  phoneno: string;
   profile_image: String;
   resume_link: String;
   isBlocked: boolean;
   experinces: mongoose.Schema.Types.ObjectId[];
   education: mongoose.Schema.Types.ObjectId[];
   language: mongoose.Schema.Types.ObjectId[];
+  skills: String[];
+  company: mongoose.Schema.Types.ObjectId;
   role: mongoose.Schema.Types.ObjectId;
 }
 
@@ -18,8 +21,10 @@ const UserSchema: Schema = new Schema<IUser>(
   {
     name: {
       type: String,
-      unique: true,
       required: true,
+    },
+    phoneno: {
+      type: String,
     },
     dob: {
       type: Date,
@@ -50,12 +55,21 @@ const UserSchema: Schema = new Schema<IUser>(
         ref: "experince",
       },
     ],
+    skills: [
+      {
+        type: String,
+      },
+    ],
     education: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "education_model",
       },
     ],
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "company",
+    },
     language: [
       {
         type: mongoose.Schema.Types.ObjectId,

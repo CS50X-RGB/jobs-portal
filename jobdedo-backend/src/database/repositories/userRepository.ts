@@ -3,6 +3,7 @@ import { IUserCreate, IUserCreation } from "../../interfaces/userInterface";
 import User from "../models/userModel";
 import Language from "../models/languangesModel";
 import Education from "../models/educationModel";
+import Experince from "../models/experinceModel";
 
 class UserRepository {
   public async createUser(user: IUserCreation): Promise<IUserCreation | null> {
@@ -70,6 +71,7 @@ class UserRepository {
         },
         { path: "education" },
         { path: "language" },
+        { path: "experinces" },
       ]);
 
       if (!user) {
@@ -161,6 +163,24 @@ class UserRepository {
         {
           $push: {
             education: createEducation._id,
+          },
+        },
+        { new: true },
+      );
+      return updateUser;
+    } catch (error: any) {
+      throw new Error(`Error while getting creating education ${error}`);
+    }
+  }
+
+  public async createExperinceObject(userId: string, expBody: any) {
+    try {
+      const createExperince = await Experince.create(expBody);
+      const updateUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $push: {
+            experinces: createExperince._id,
           },
         },
         { new: true },
