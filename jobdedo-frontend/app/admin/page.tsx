@@ -2,7 +2,7 @@
 import React from "react";
 import CustomTable from "@/components/CustomTable";
 import { getData } from "@/core/api/apiHandler";
-import { accountRoutes, analyticsRoutes } from "@/core/api/apiRoutes";
+import { accountRoutes } from "@/core/api/apiRoutes";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Card, CardBody, CardHeader, Spinner } from "@heroui/react";

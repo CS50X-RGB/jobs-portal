@@ -153,9 +153,20 @@ export default function App() {
         router.push("/admin");
       }
       if (role === "EMPLOYEER") {
-        router.push("/employeer/onboarding");
-      } else if (role === "CANDIDATE") {
-        router.push("/candidate/onboarding");
+        console.log(data?.data?.data?.company, "data");
+        if (data?.data?.data?.company) {
+          router.push("/employeer/dashboard");
+        } else {
+          router.push("/employeer/onboarding");
+        }
+        // router.push("/employeer/onboarding");
+      }
+      if (role === "CANDIDATE") {
+        if (data?.data?.data?.resume) {
+          router.push("/candidate/dashboard");
+        } else {
+          router.push("/candidate/onboarding");
+        }
       }
     },
     onError: (error: any) => {

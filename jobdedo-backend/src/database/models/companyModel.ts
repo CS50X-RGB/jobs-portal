@@ -12,6 +12,8 @@ export interface ICompanyInterface extends Document {
   description: string;
   level: Level;
   foundationDate: Date;
+  jobs: mongoose.Schema.Types.ObjectId[];
+  logo: String;
   categories: String[];
   users: mongoose.Schema.Types.ObjectId[];
 }
@@ -33,9 +35,18 @@ const CompanySchema = new Schema<ICompanyInterface>({
     enum: Object.values(Level),
     required: true,
   },
+  logo: {
+    type: String,
+  },
   categories: [
     {
       type: String,
+    },
+  ],
+  jobs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "job",
     },
   ],
   users: [

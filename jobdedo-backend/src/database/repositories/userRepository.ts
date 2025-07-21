@@ -72,6 +72,7 @@ class UserRepository {
         { path: "education" },
         { path: "language" },
         { path: "experinces" },
+        { path: "company" },
       ]);
 
       if (!user) {

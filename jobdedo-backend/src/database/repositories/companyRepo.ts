@@ -25,6 +25,7 @@ class CompanyRepo {
     try {
       const companyObj = await Company.create(companyData);
 
+      // Update user with company
       const updateUser = await User.findByIdAndUpdate(
         userId,
         {
@@ -35,6 +36,7 @@ class CompanyRepo {
         { new: true },
       );
 
+      // Update company with user
       const updateCompanyObj = await Company.findByIdAndUpdate(
         companyObj._id,
         {

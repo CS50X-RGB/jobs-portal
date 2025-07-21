@@ -9,10 +9,12 @@ function fileFilter(req: any, file: Express.Multer.File, cb: any) {
       cb(new Error("Only PDF files are allowed for resume"), false);
     }
   } else if (file.fieldname === "images") {
-    if (file.mimetype === "image/png") {
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+    if (allowedTypes.includes(file.mimetype)) {
+      console.log(file, "file");
       cb(null, true);
     } else {
-      cb(new Error("Only PNG images are allowed"), false);
+      cb(new Error("Only PNG, JPEG, JPG images are allowed"));
     }
   } else {
     cb(new Error("Invalid field Name"), false);

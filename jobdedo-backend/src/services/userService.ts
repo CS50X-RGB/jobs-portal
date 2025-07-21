@@ -76,7 +76,7 @@ class UserService {
           name: userDetails.name,
           email: userDetails.email,
         });
-        const userResponse = {
+        let userResponse: any = {
           name: userDetails.name,
           email: userDetails.email,
           isBlocked: userDetails.isBlocked,
@@ -84,6 +84,12 @@ class UserService {
           token: accessToken,
           permissions: userDetails.role.permissions,
         };
+        if (userDetails?.resume_link) {
+          userResponse.resume = userDetails?.resume_link;
+        }
+        if (userDetails?.company) {
+          userResponse.company = userDetails?.company;
+        }
         return res.sendFormatted(userResponse, "User Details", 200);
       }
     } catch (e) {
@@ -163,7 +169,6 @@ class UserService {
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const resume = files?.resume?.[0];
-      console.log(resume, "Resume");
       const { _id, ...other }: any = req.user;
       const fileBuffer = fs.readFileSync(resume.path);
       const params: any = {
@@ -183,11 +188,11 @@ class UserService {
           console.error("❌ Error uploading file to S3:", error);
           throw new Error("S3 upload failed");
         });
-
+      fs.unlinkSync(resume.path);
       const user = {
-        resume: uploadResult,
+        resume_link: uploadResult,
       };
-
+      console.log(user, "user");
       const updateUser = await this.userRepository.updateUser(_id, user);
       return res.sendFormatted(updateUser, "User updated", 200);
     } catch (error: any) {
@@ -202,9 +207,7 @@ class UserService {
   public async updateUserMine(req: Request, res: Response) {
     try {
       const { _id }: any = req.user;
-      console.log(req.user, "user object");
       const existingUser = await this.userRepository.getUserById(_id);
-      console.log(existingUser, "user");
       if (!existingUser) {
         return res.sendError(
           "User not found",
@@ -451,6 +454,20 @@ class UserService {
       }
       const { _id, ...other }: any = req.user;
       const { data } = req.body;
+      if (data.logo) {
+        if (!req.files) {
+          return res.sendError(
+            "Error while updating resume",
+            "Resume updation failed",
+            400,
+          );
+        }
+        const files = req.files as {
+          [fieldname: string]: Express.Multer.File[];
+        };
+        const logo = files?.images?.[0];
+        const fileBuffer = fs.readFileSync(logo.path);
+      }
       const createCompany = await this.companyRepo.createCompany(_id, data);
       return res.sendFormatted(createCompany, "Company Added", 200);
     } catch (error) {
@@ -476,6 +493,57 @@ class UserService {
       return res.sendError(
         `Error while getting companies`,
         "Error while getting comapnies",
+        400,
+      );
+    }
+  }
+
+  public async updateProfileImage(req: Request, res: Response) {
+    try {
+      if (!req.files) {
+        return res.sendError(
+          "Error while updating profile Image",
+          "Profile Images updation failed",
+          400,
+        );
+      }
+
+      if (!req.user) {
+        return res.sendError("Error not logged in", "Login required", 400);
+      }
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      console.log(files, "files");
+      const resume = files?.images?.[0];
+      console.log(resume);
+      const { _id, ...other }: any = req.user;
+      const fileBuffer = fs.readFileSync(resume.path);
+      const params: any = {
+        Bucket: AWS_BUCKET,
+        Key: `images/${Date.now()}-${resume.originalname}`,
+        Body: fileBuffer,
+        ContentType: resume.mimetype,
+      };
+
+      const uploadResult: string = await s3
+        .upload(params)
+        .promise()
+        .then((res) => {
+          return res.Location;
+        })
+        .catch((error) => {
+          console.error("❌ Error uploading file to S3:", error);
+          throw new Error("S3 upload failed");
+        });
+      fs.unlinkSync(resume.path);
+      const user = {
+        profile_image: uploadResult,
+      };
+      const updateUser = await this.userRepository.updateUser(_id, user);
+      return res.sendFormatted(updateUser, "User updated", 200);
+    } catch (error) {
+      return res.sendError(
+        `Error while updating profile image`,
+        "Profile image updated",
         400,
       );
     }

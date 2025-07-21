@@ -15,6 +15,7 @@ export const accountRoutes = {
   updateResume: "/user/update-resume",
   getCompanies: "/user/employeer/get/company",
   addCompany: "/user/employeer/add/company",
+  addImageCandidate: "/user/update-profile",
 };
 export const rolesRoutes = {
   getAll: "/role/all/roles",
@@ -29,30 +30,9 @@ export const partNumbersRoutes = {
   searchByPart: "part/search/all",
 };
 
-export const bomRoutes = {
-  createBom: "/bom/create",
-  getBom: "/bom/get",
-  importBom: "/bom/import",
-  searchBom: "/bom/search/bom",
-  getbomObject: "/bom/whole",
-  planBomObject: "/bom/plan/create",
-  getAllBom: "/bom/get/all",
-  getSubAssemblyDetails: "/bom/child",
-  addSubAssembly: "/bom/create/sub",
-  getSingleBom: "/bom/single/",
-  getPlanning: "/bom/plan/get/transaction",
-  getTransaction: "/bom/plan/get/transaction",
-  multiInfor: "/bom/plan/multi",
-  lockPlanForAll: "/bom/plan/lock/all",
-  realsePlanning: "/bom/plan/realse/",
-  deleteBomById: "/bom/delete/",
-};
-
-export const uomRoutes = {
-  getAllUom: "/uom/all",
-};
-
-export const analyticsRoutes = {
-  getData: "/analytics/getCount",
-  getPlanning: "/analytics/getPlanning",
+export const jobRoutes = {
+  createJob: "/jobs/create",
+  getBom: "/jobs/get/",
+  getSingleJob: "/jobs/jobs/get/",
+  apply: "/jobs/apply/",
 };

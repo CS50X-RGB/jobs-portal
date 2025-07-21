@@ -1,6 +1,6 @@
 "use client";
 import CustomModal from "@/components/Modal/CustomModal";
-import { educationType, langLevel } from "@/content/selectData";
+import { educationType, indianStates, langLevel } from "@/content/selectData";
 import { putData } from "@/core/api/apiHandler";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -413,6 +413,17 @@ export default function CandidateOnboarding() {
                 )}
             </div>
           </div>
+          <Select
+            isRequired
+            onChange={(e: any) => handleSet("user", e.target.value, "state")}
+            className="max-w-xl"
+            label="State"
+            placeholder="Select State"
+          >
+            {indianStates.map((animal) => (
+              <SelectItem key={animal.key}>{animal.label}</SelectItem>
+            ))}
+          </Select>
           <div className="flex flex-col justify-start items-start w-full gap-2">
             <div className="flex items-center flex-wrap gap-4">
               {user.skills &&

@@ -90,5 +90,10 @@ router.get(
   userMiddleware.verify.bind(userMiddleware),
   userService.getCompanies.bind(userService),
 );
-
+router.put(
+  "/update-profile",
+  userMiddleware.verify.bind(userMiddleware),
+  uploadFiles,
+  userService.updateProfileImage.bind(userService),
+);
 export default router;
