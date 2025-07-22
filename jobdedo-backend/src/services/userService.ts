@@ -245,17 +245,16 @@ class UserService {
       if (user.skills) {
         updateObject.skills = user.skills;
       }
+      if (user.company) {
+        updateObject.company = user.company;
+      }
       const success = await this.userRepository.updateUser(_id, updateObject);
 
       if (!success) {
         return res.sendError("Update failed", "Unable to update user", 500);
       }
 
-      return res.sendFormatted(
-        "User updated successfully",
-        "User Updated",
-        200,
-      );
+      return res.sendFormatted(success, "User Updated", 200);
     } catch (error: any) {
       return res.sendError("Internal server error", error.message, 500);
     }
@@ -544,6 +543,21 @@ class UserService {
       return res.sendError(
         `Error while updating profile image`,
         "Profile image updated",
+        400,
+      );
+    }
+  }
+
+  public async getCompanyById(req: Request, res: Response) {
+    try {
+      const { companyId }: any = req.params;
+      const companyObject: any =
+        await this.companyRepo.getCompanyById(companyId);
+      return res.sendFormatted(companyObject, "Company Object", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while getting object`,
+        "Error while getting object of company",
         400,
       );
     }

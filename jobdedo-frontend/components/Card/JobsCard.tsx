@@ -20,11 +20,12 @@ function getTimeAgo(createdAt: string) {
 
 export default function JobsCard({ jobData }: any) {
   const router = useRouter();
+  const role: any = localStorage.getItem("ROLE");
 
   return (
     <Card
       isPressable
-      onPress={() => router.push(`/candidate/jobs/${jobData._id}`)}
+      onPress={() => router.push(`/${role.toLowerCase()}/jobs/${jobData._id}`)}
       className="flex flex-col w-[400px]"
     >
       <CardHeader className="flex flex-row items-center w-full  gap-4 font-bold text-xl px-10">

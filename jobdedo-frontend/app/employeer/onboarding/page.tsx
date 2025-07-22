@@ -20,6 +20,7 @@ import CustomModal from "@/components/Modal/CustomModal";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/app/providers";
+import { useRouter } from "next/navigation";
 
 export default function OnBoarding() {
   const {
@@ -28,7 +29,7 @@ export default function OnBoarding() {
     isOpen: isOpenCompany,
     onClose: onCloseComapny,
   } = useDisclosure();
-
+  const router = useRouter();
   const [company, setCompany] = useState<any>({});
   const [user, setUser] = useState<any>({});
   const [skillInput, setSkillInput] = useState<any>("");
@@ -175,6 +176,7 @@ export default function OnBoarding() {
     }
     if (profileData?.data?.data?.company) {
       setSelectedCompany(profileData?.data?.data?.company?._id);
+      router.push("/employeer/dashboard");
     }
   }, [profileData]);
 
@@ -203,28 +205,64 @@ export default function OnBoarding() {
             />
           </div>
           <div className="flex flex-col w-full items-center gap-4 justify-around">
-            <Autocomplete
-              className="max-w-xl"
-              inputValue={list.filterText}
-              isLoading={list.isLoading}
-              items={list.items ?? []}
-              selectedKey={selectedCompany?.toString() ?? ""}
-              isRequired
-              onSelectionChange={(e) => {
-                if (e === "other") {
-                  onOpenComapny();
-                }
-              }}
-              label={"Select Company"}
-              variant="bordered"
-              onInputChange={list.setFilterText}
-            >
-              {(item: any) => (
-                <AutocompleteItem key={item._id} className="capitalize">
-                  {item.name}
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
+            {selectedCompany ? (
+              <Autocomplete
+                className="max-w-xl"
+                inputValue={list.filterText}
+                isLoading={list.isLoading}
+                items={list.items ?? []}
+                selectedKey={selectedCompany?.toString()}
+                isRequired
+                onSelectionChange={(e) => {
+                  if (e === "other") {
+                    onOpenComapny();
+                  } else if (e) {
+                    console.log("Selected ID:", e);
+                    setSelectedCompany(e);
+                    handleSet("company", e, "user");
+                  }
+                }}
+                label="Select Company"
+                variant="bordered"
+                onInputChange={list.setFilterText}
+              >
+                {(item: any) => (
+                  <AutocompleteItem key={item._id} className="capitalize">
+                    {item.name}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
+            ) : (
+              <>
+                <h1>Hello</h1>
+                <Autocomplete
+                  className="max-w-xl"
+                  inputValue={list.filterText}
+                  isLoading={list.isLoading}
+                  items={list.items ?? []}
+                  isRequired
+                  onSelectionChange={(e) => {
+                    if (e === "other") {
+                      onOpenComapny();
+                    } else if (e) {
+                      console.log("Selected ID:", e);
+                      setSelectedCompany(e);
+                      handleSet("company", e, "user");
+                    }
+                  }}
+                  label="Select Company"
+                  variant="bordered"
+                  onInputChange={list.setFilterText}
+                >
+                  {(item: any) => (
+                    <AutocompleteItem key={item._id} className="capitalize">
+                      {item.name}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              </>
+            )}
+
             {profileData?.data?.data?.company && (
               <Card className="w-2/3">
                 <CardHeader className="font-bold text-xl">

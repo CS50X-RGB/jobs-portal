@@ -1,5 +1,7 @@
 import Job from "../models/jobsModel";
 import User from "../models/userModel";
+import Company from "../models/companyModel";
+import JobProgress, { JobProgressStatus } from "../models/jobProgressModel";
 
 class JobsRepo {
   constructor() {}
@@ -14,27 +16,45 @@ class JobsRepo {
         item.company = userModal.company;
       }
       const createNewJob = await Job.create(item);
+      if (item.company) {
+        const newCompany = await Company.findByIdAndUpdate(
+          item.company,
+          {
+            $push: {
+              jobs: createNewJob._id,
+            },
+          },
+          { new: true },
+        );
+      }
       return createNewJob.toObject();
     } catch (error: any) {
-      console.log(error, "error");
       throw new Error(`Error for creating job ${error}`);
     }
   }
   public async applyOnJob(userId: any, jobId: any) {
     try {
-      // Optional: Check if already applied
       const job = await Job.findById(jobId);
       if (!job) {
         throw new Error("Job not found");
       }
-      // if (job.applicants.includes(userId)) {
-      //   throw new Error("User already applied to this job");
-      // }
+      if (job.applicants.includes(userId)) {
+        throw new Error("User already applied to this job");
+      }
+      const jobProgress = {
+        jobId: jobId,
+        statusBy: userId,
+        appliedBy: userId,
+        applyDate: new Date(),
+        progress: JobProgressStatus.APPLIED,
+      };
+      const jobProgressModal = await JobProgress.create(jobProgress);
       const jobModal = await Job.findByIdAndUpdate(
         jobId,
         {
           $push: {
             applicants: userId,
+            progress: jobProgressModal.toObject()._id,
           },
         },
         {
@@ -42,11 +62,17 @@ class JobsRepo {
         },
       );
 
-      await User.findByIdAndUpdate(userId, {
-        $inc: {
-          applies: 1,
+      const user = await User.findByIdAndUpdate(
+        userId,
+        {
+          $inc: {
+            applies: 1,
+          },
         },
-      });
+        {
+          new: true,
+        },
+      );
 
       return jobModal;
     } catch (error: any) {
@@ -67,12 +93,101 @@ class JobsRepo {
   public async getJobById(jobId: any) {
     try {
       const jobEntity = await Job.findById(jobId)
-        .populate("createdBy company")
+        .populate("createdBy company applicants progress")
         .lean();
 
       return jobEntity;
     } catch (error: any) {
       throw new Error(`Error while getting job by id: ${error.message}`);
+    }
+  }
+  public async getJobByIdApplicants(jobId: any) {
+    try {
+      const jobEntity = await Job.findById(jobId)
+        .populate([
+          {
+            path: "applicants",
+            select: "-password -role",
+            populate: [
+              {
+                path: "experinces",
+              },
+              {
+                path: "education",
+              },
+              {
+                path: "language",
+              },
+            ],
+          },
+        ])
+        .select("applicants")
+        .lean();
+
+      return jobEntity;
+    } catch (error: any) {
+      throw new Error(`Error while getting job by id: ${error.message}`);
+    }
+  }
+  public async getJobsAppliedByUser(userId: any) {
+    try {
+      const getJobsObject = await Job.find({
+        applicants: { $in: [userId] },
+      }).populate("company progress applicants");
+      return getJobsObject;
+    } catch (error) {
+      throw new Error(`Error while getting applied jobs`);
+    }
+  }
+  public async updateJobProgress(
+    userId: any,
+    jobId: any,
+    status: any,
+    appliedBy: any,
+  ) {
+    try {
+      const item = {
+        jobId,
+        progress: status,
+        statusBy: userId,
+        applyDate: new Date(),
+        appliedBy,
+      };
+      const newJobProgress = await JobProgress.create(item);
+      const updateJob = await Job.findByIdAndUpdate(
+        jobId,
+        {
+          $push: {
+            progress: newJobProgress.toObject()._id,
+          },
+        },
+        {
+          new: true,
+        },
+      );
+      return updateJob;
+    } catch (error: any) {
+      throw new Error(`Error while updating resume`);
+    }
+  }
+  public async getProgressUpdatesByJobId(jobId: any, userId: any) {
+    try {
+      const jobsProgressModels = await JobProgress.find({
+        jobId,
+        appliedBy: userId,
+      }).populate([
+        {
+          path: "jobId",
+          populate: [
+            {
+              path: "company",
+            },
+          ],
+        },
+      ]);
+      return jobsProgressModels;
+    } catch (error: any) {
+      throw new Error(`Error while getting progress Updates`);
     }
   }
 }

@@ -22,8 +22,6 @@ export default function SingleJob() {
     },
   });
   const profileData: any = queryClient.getQueryData(["getProfile"]);
-  const userData: any = profileData?.data?.data?._id;
-  console.log(profileData.data.data);
   const applyForJob = useMutation({
     mutationKey: ["applyForJob"],
     mutationFn: (data: any) => {
@@ -41,6 +39,10 @@ export default function SingleJob() {
       });
     },
   });
+  console.log(getJob?.data?.data?.applicants);
+  console.log(
+    getJob?.data?.data?.applicants.includes(profileData?.data?.data?._id),
+  );
 
   function getTimeAgo(createdAt: string) {
     const created = new Date(createdAt);
@@ -109,7 +111,9 @@ export default function SingleJob() {
             <p>{getJob?.data?.data?.applicants.length} Applicants</p>
           </div>
           <div className="flex flex-row items-center gap-2">
-            {getJob?.data?.data?.applicants.includes(userData._id) ? (
+            {getJob?.data?.data?.applicants.includes(
+              profileData?.data?.data?._id,
+            ) ? (
               <span className="text-green-600 font-semibold">
                 Already Applied
               </span>
@@ -125,7 +129,9 @@ export default function SingleJob() {
           </div>
         </CardFooter>
       </Card>
-      <p>{getJob?.data?.data?.description}</p>
+      <div className="flex flex-col bg-white w-3/4 p-10  rounded-xl gap-4 justify-start items-start">
+        <p>{getJob?.data?.data?.description}</p>
+      </div>
     </div>
   );
 }

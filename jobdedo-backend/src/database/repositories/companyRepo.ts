@@ -24,7 +24,14 @@ class CompanyRepo {
   public async createCompany(userId: any, companyData: any) {
     try {
       const companyObj = await Company.create(companyData);
-
+      const oldUser: any = await User.findById(userId);
+      if (oldUser.company) {
+        await Company.findByIdAndUpdate(oldUser.company, {
+          $pull: {
+            users: userId,
+          },
+        });
+      }
       // Update user with company
       const updateUser = await User.findByIdAndUpdate(
         userId,
@@ -53,6 +60,47 @@ class CompanyRepo {
       };
     } catch (error: any) {
       throw new Error(`Error while creating company: ${error.message}`);
+    }
+  }
+
+  public async pushEmployee(userId: any, companyId: any, prevCompany?: any) {
+    try {
+      if (prevCompany) {
+        const updateCompany = await Company.findByIdAndUpdate(
+          prevCompany,
+          {
+            $pull: {
+              users: userId,
+            },
+          },
+          {
+            new: true,
+          },
+        );
+      }
+      const updateCompany = await Company.findByIdAndUpdate(
+        companyId,
+        {
+          $push: {
+            users: userId,
+          },
+        },
+        {
+          new: true,
+        },
+      );
+      return updateCompany;
+    } catch (error: any) {
+      throw new Error(`Error while pushing Employee`);
+    }
+  }
+
+  public async getCompanyById(companyId: any) {
+    try {
+      const company = await Company.findById(companyId).populate("jobs").lean();
+      return company;
+    } catch (error: any) {
+      throw new Error(`Error while getting employee object`);
     }
   }
 }

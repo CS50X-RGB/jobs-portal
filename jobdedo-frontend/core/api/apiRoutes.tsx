@@ -35,4 +35,8 @@ export const jobRoutes = {
   getBom: "/jobs/get/",
   getSingleJob: "/jobs/jobs/get/",
   apply: "/jobs/apply/",
+  getCandidates: "/jobs/get/applicants/employeer/",
+  appliedJobsCandidated: "/jobs/applied/jobs",
+  updateResumeStatus: "/jobs/resume/apply/",
+  getProgressUpdate: "/jobs/progress/",
 };

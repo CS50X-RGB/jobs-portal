@@ -12,6 +12,10 @@ export default function Dashboard() {
       name: "Views Jobs",
       link: "/candidate/jobs/",
     },
+    {
+      name: "Applied Jobs",
+      link: "/candidate/jobs/applied",
+    },
   ];
   const handleMenuClick = (item: any) => {
     router.push(item.link);

@@ -25,4 +25,28 @@ router.get(
   userMiddleware.verify.bind(userMiddleware),
   jobsService.getJobSingle.bind(jobsService),
 );
+
+router.get(
+  "/get/applicants/employeer/:jobId",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getJobApplicants.bind(jobsService),
+);
+
+router.get(
+  "/applied/jobs",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getAppliedJobsByUser.bind(jobsService),
+);
+
+router.put(
+  "/resume/apply/:jobId",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.updateStatusResumeViewed.bind(jobsService),
+);
+
+router.get(
+  "/progress/:jobId",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getProgressUpdatesByJobById.bind(jobsService),
+);
 export default router;

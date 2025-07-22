@@ -4,8 +4,13 @@ import User from "../models/userModel";
 import Language from "../models/languangesModel";
 import Education from "../models/educationModel";
 import Experince from "../models/experinceModel";
+import CompanyRepo from "./companyRepo";
 
 class UserRepository {
+  private companyRepo: CompanyRepo;
+  constructor() {
+    this.companyRepo = new CompanyRepo();
+  }
   public async createUser(user: IUserCreation): Promise<IUserCreation | null> {
     try {
       const newUser = await User.create(user);
@@ -113,13 +118,23 @@ class UserRepository {
       throw new Error(`Delete User Failed`);
     }
   }
-  public async updateUser(id: any, userObject: any): Promise<boolean | null> {
+  public async updateUser(id: any, userObject: any): Promise<any | null> {
     try {
       const user = await User.findById(id);
       if (!user) return null;
+      if (user.company && Object.keys(userObject).includes("company")) {
+        await this.companyRepo.pushEmployee(
+          id,
+          userObject.company,
+          user.company,
+        );
+      }
+      if (!user.company && Object.keys(userObject).includes("company")) {
+        await this.companyRepo.pushEmployee(id, userObject.company);
+      }
       user.set(userObject);
       await user.save();
-      return true;
+      return user ?? null;
     } catch (error) {
       throw new Error(`Error while updating the user`);
     }

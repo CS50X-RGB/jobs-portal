@@ -16,7 +16,7 @@ export interface IJob extends Document {
     max: number;
   };
   isClosed: boolean;
-  applyDate: Date;
+  progress: mongoose.Schema.Types.ObjectId[];
 }
 
 const JobsSchema = new Schema<IJob>(
@@ -61,9 +61,13 @@ const JobsSchema = new Schema<IJob>(
       type: Boolean,
       default: false,
     },
-    applyDate: {
-      type: Date,
-    },
+    progress: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "job_progress",
+        default: [],
+      },
+    ],
   },
   { timestamps: true },
 );
