@@ -16,6 +16,8 @@ export const accountRoutes = {
   getCompanies: "/user/employeer/get/company",
   addCompany: "/user/employeer/add/company",
   addImageCandidate: "/user/update-profile",
+  getEmployess: "/user/company/employees",
+  candidatesWithResume: "/user/canidates/with-resume",
 };
 export const rolesRoutes = {
   getAll: "/role/all/roles",
@@ -39,4 +41,7 @@ export const jobRoutes = {
   appliedJobsCandidated: "/jobs/applied/jobs",
   updateResumeStatus: "/jobs/resume/apply/",
   getProgressUpdate: "/jobs/progress/",
+  createInterview: "/jobs/create/interview/",
+  getMineInterviews: "/jobs/fetch/interviews",
+  rejectCanidate: "/jobs/reject/candidate/",
 };

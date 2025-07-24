@@ -2,9 +2,13 @@ import Job from "../models/jobsModel";
 import User from "../models/userModel";
 import Company from "../models/companyModel";
 import JobProgress, { JobProgressStatus } from "../models/jobProgressModel";
+import InterviewRepo from "./interviewRepo";
 
 class JobsRepo {
-  constructor() {}
+  private interviewRepo: InterviewRepo;
+  constructor() {
+    this.interviewRepo = new InterviewRepo();
+  }
   public async createJob(userId: any, data: any) {
     try {
       const userModal: any = await User.findById(userId);
@@ -96,11 +100,41 @@ class JobsRepo {
         .populate("createdBy company applicants progress")
         .lean();
 
-      return jobEntity;
+      if (!jobEntity || !Array.isArray(jobEntity.progress)) {
+        return {
+          ...jobEntity,
+          progress: [],
+        };
+      }
+
+      const enrichedProgress = await Promise.all(
+        jobEntity.progress.map(async (p: any) => {
+          if (p.progress === "interview_added") {
+            const interviews =
+              await this.interviewRepo.getInterviewsByUserIdJobId(
+                p.appliedBy,
+                jobId,
+              );
+
+            return {
+              ...p,
+              interviews,
+            };
+          }
+
+          return p;
+        }),
+      );
+
+      return {
+        ...jobEntity,
+        progress: enrichedProgress,
+      };
     } catch (error: any) {
       throw new Error(`Error while getting job by id: ${error.message}`);
     }
   }
+
   public async getJobByIdApplicants(jobId: any) {
     try {
       const jobEntity = await Job.findById(jobId)
@@ -153,6 +187,7 @@ class JobsRepo {
         applyDate: new Date(),
         appliedBy,
       };
+
       const newJobProgress = await JobProgress.create(item);
       const updateJob = await Job.findByIdAndUpdate(
         jobId,

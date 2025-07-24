@@ -31,9 +31,11 @@ class UserService {
   public async createAdmin(): Promise<void> {
     try {
       const role = await this.roleRepository.getIdByRole("ADMIN");
+      console.log(role, "role");
       if (role) {
         const hashedPassword = await hashPassword(ADMIN_PASS);
         const needAdmin = await this.userRepository.getUserByRole(role._id);
+        console.log(needAdmin, "admin");
         if (!needAdmin) {
           const user = {
             name: ADMIN_USER,
@@ -50,7 +52,7 @@ class UserService {
         console.log(`Admin creation failed`);
       }
     } catch (error: any) {
-      throw new Error(`Error in Admin creation`);
+      console.log(`Error in Admin creation ${error}`);
     }
   }
   public async login(req: Request, res: Response) {
@@ -558,6 +560,44 @@ class UserService {
       return res.sendError(
         `Error while getting object`,
         "Error while getting object of company",
+        400,
+      );
+    }
+  }
+
+  public async getEmployees(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(
+          `Error while getting user`,
+          "Error while getting user",
+          400,
+        );
+      }
+      const { _id, ...other }: any = req.user;
+      const getEmployeesFromCompany = await this.companyRepo.getEmployees(_id);
+      return res.sendArrayFormatted(
+        getEmployeesFromCompany,
+        "Employees fetched",
+        200,
+      );
+    } catch (error: any) {
+      return res.sendError(
+        `Error while getting employess`,
+        `Error while getting employees`,
+        400,
+      );
+    }
+  }
+
+  public async getUsersWithResume(req: Request, res: Response) {
+    try {
+      const users = await this.userRepository.getUsersWithResume();
+      return res.sendArrayFormatted(users, "Users with resume fetched", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while getting users with resume`,
+        "Users with Resume not found",
         400,
       );
     }

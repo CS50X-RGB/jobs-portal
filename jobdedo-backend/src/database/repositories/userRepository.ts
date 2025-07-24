@@ -206,5 +206,16 @@ class UserRepository {
       throw new Error(`Error while getting creating education ${error}`);
     }
   }
+
+  public async getUsersWithResume() {
+    try {
+      const users = await User.find({
+        resume_link: { $ne: null },
+      });
+      return users;
+    } catch (error: any) {
+      throw new Error(`Error while getting users`);
+    }
+  }
 }
 export default UserRepository;

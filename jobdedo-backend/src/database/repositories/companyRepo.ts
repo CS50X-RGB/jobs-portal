@@ -103,6 +103,28 @@ class CompanyRepo {
       throw new Error(`Error while getting employee object`);
     }
   }
+
+  public async getEmployees(userId: any) {
+    try {
+      const user_company: any = await User.findById(userId).select("company");
+      const company = await Company.findById(user_company.company)
+        .populate("users")
+        .select("users")
+        .lean();
+
+      if (!company || !company.users) {
+        return [];
+      }
+
+      const filteredUsers = company.users.filter(
+        (id: any) => id._id.toString() !== userId.toString(),
+      );
+
+      return filteredUsers;
+    } catch (error) {
+      throw new Error(`Error while getting employees from company`);
+    }
+  }
 }
 
 export default CompanyRepo;

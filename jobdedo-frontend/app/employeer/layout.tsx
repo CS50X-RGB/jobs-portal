@@ -31,6 +31,7 @@ export default function Employee({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isFetched && getProfile?.data) {
       const permissions: any[] = [];
+
       if (getProfile.data.data.role && getProfile.data.data.role.permissions) {
         getProfile?.data?.data?.role?.permissions.map((p: any) => {
           const obj = {

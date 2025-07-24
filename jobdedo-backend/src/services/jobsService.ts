@@ -1,11 +1,14 @@
 import { JobProgressStatus } from "../database/models/jobProgressModel";
 import JobsRepo from "../database/repositories/jobsRepo";
+import InterviewRepo from "../database/repositories/interviewRepo";
 import { Request, Response } from "express";
 
 class JobsService {
   private jobsRepo: JobsRepo;
+  private interviewRepo: InterviewRepo;
   constructor() {
     this.jobsRepo = new JobsRepo();
+    this.interviewRepo = new InterviewRepo();
   }
   public async createJob(req: Request, res: Response) {
     try {
@@ -150,6 +153,83 @@ class JobsService {
       return res.sendError(
         "Error while getting progress updating",
         "Error while fetching job progress Updates",
+        400,
+      );
+    }
+  }
+
+  public async rejectCandidate(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError("User not logged in", "User not logged in", 400);
+      }
+      const { _id, ...other } = req.user;
+      const { jobId }: any = req.params;
+      const { data } = req.body;
+      const jobsResume = await this.jobsRepo.updateJobProgress(
+        _id,
+        jobId,
+        JobProgressStatus.REJECTED,
+        data.userId,
+      );
+      return res.sendFormatted(jobsResume, "Jobs Progress Update", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while updating rejecting candidate`,
+        "Rejecting Candidate",
+        400,
+      );
+    }
+  }
+
+  public async createInterview(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(`User not logged in`, "User not logged in", 400);
+      }
+      const { _id, ...other }: any = req.user;
+      const { job }: any = req.params;
+      const { data } = req.body;
+      console.log(data);
+      const jobsResume = await this.jobsRepo.updateJobProgress(
+        _id,
+        job,
+        JobProgressStatus.INTERVIEW_ADDED,
+        data.userId,
+      );
+
+      const jobsInterview = await this.interviewRepo.createInterview(
+        data,
+        _id,
+        job,
+      );
+
+      return res.sendFormatted(jobsInterview, "Interview Added", 200);
+    } catch (error) {
+      return res.sendError(
+        `Error while creating interview`,
+        `Error while creating interview`,
+        400,
+      );
+    }
+  }
+
+  public async getInterviewsByUserId(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(
+          `Error while getting interviews`,
+          "Error while getting interviwes",
+          400,
+        );
+      }
+      const { _id, ...other } = req.user;
+      const interviews = await this.interviewRepo.getInterviewsByUserId(_id);
+      return res.sendArrayFormatted(interviews, `User got the interviews`, 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while getting interviews`,
+        "Error while getting interviews",
         400,
       );
     }

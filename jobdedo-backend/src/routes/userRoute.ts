@@ -96,4 +96,16 @@ router.put(
   uploadFiles,
   userService.updateProfileImage.bind(userService),
 );
+
+router.get(
+  "/company/employees",
+  userMiddleware.verify.bind(userMiddleware),
+  userService.getEmployees.bind(userService),
+);
+
+router.get(
+  "/canidates/with-resume",
+  userMiddleware.verify.bind(userMiddleware),
+  userService.getUsersWithResume.bind(userService),
+);
 export default router;

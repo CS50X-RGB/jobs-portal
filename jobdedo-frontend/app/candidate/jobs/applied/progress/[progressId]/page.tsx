@@ -4,7 +4,7 @@ import { getData } from "@/core/api/apiHandler";
 import { jobRoutes } from "@/core/api/apiRoutes";
 import { Card, CardBody } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-import { Briefcase, Check, IndianRupee, MapPin } from "lucide-react";
+import { Briefcase, Check, IndianRupee, MapPin, X } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function ProgressUpdateJob() {
@@ -90,8 +90,18 @@ export default function ProgressUpdateJob() {
           return (
             <div key={progress._id} className="flex items-center gap-2 w-full">
               <div className="flex flex-col items-center text-center w-32">
-                <div className="bg-green-500 rounded-full p-2">
-                  <Check className="text-white" size={16} />
+                <div
+                  className={
+                    progress?.progress === "rejected"
+                      ? `bg-red-500 rounded-full p-2`
+                      : `bg-green-500 rounded-full p-2`
+                  }
+                >
+                  {progress?.progress === "rejected" ? (
+                    <X className="text-white" size={16} />
+                  ) : (
+                    <Check className="text-white" size={16} />
+                  )}
                 </div>
                 <span className="text-sm text-gray-600 uppercase font-semibold mt-2">
                   {generateStatus(progress?.progress)}

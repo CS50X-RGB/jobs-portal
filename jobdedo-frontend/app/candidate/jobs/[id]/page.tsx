@@ -22,6 +22,7 @@ export default function SingleJob() {
     },
   });
   const profileData: any = queryClient.getQueryData(["getProfile"]);
+  console.log(profileData.data.data._id, "profile");
   const applyForJob = useMutation({
     mutationKey: ["applyForJob"],
     mutationFn: (data: any) => {
@@ -70,6 +71,17 @@ export default function SingleJob() {
     );
   }
 
+  const checkApplied = () => {
+    const applicants = getJob?.data?.data?.applicants;
+    const userId = profileData?.data?.data?._id;
+
+    if (!Array.isArray(applicants) || applicants.length === 0) {
+      return false;
+    }
+
+    return applicants.some((a: any) => a._id === userId);
+  };
+
   return (
     <div className="flex flex-col items-center gap-4 p-10">
       <Card className="w-3/4 p-2">
@@ -111,9 +123,7 @@ export default function SingleJob() {
             <p>{getJob?.data?.data?.applicants.length} Applicants</p>
           </div>
           <div className="flex flex-row items-center gap-2">
-            {getJob?.data?.data?.applicants.includes(
-              profileData?.data?.data?._id,
-            ) ? (
+            {checkApplied() ? (
               <span className="text-green-600 font-semibold">
                 Already Applied
               </span>

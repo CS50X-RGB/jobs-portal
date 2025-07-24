@@ -49,8 +49,8 @@ const roles: RoleInterface[] = [
 const userService = new UserService();
 const roleService = new RoleService();
 
-roleService.createRoles(roles);
+// roleService.createRoles(roles);
 // roleService.createPermission(permissions);
-userService.createAdmin();
+//userService.createAdmin();
 
 export default app;

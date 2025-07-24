@@ -49,4 +49,22 @@ router.get(
   userMiddleware.verify.bind(userMiddleware),
   jobsService.getProgressUpdatesByJobById.bind(jobsService),
 );
+
+router.post(
+  "/create/interview/:job",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.createInterview.bind(jobsService),
+);
+
+router.put(
+  "/reject/candidate/:jobId",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.rejectCandidate.bind(jobsService),
+);
+
+router.get(
+  "/fetch/interviews",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getInterviewsByUserId.bind(jobsService),
+);
 export default router;
