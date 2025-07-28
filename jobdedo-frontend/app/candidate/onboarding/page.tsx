@@ -113,7 +113,7 @@ export default function CandidateOnboarding() {
       );
     },
     onSuccess: (data: any) => {
-      console.log(data.data, "user");
+      console.log(data?.data, "user");
       queryClient.invalidateQueries({ queryKey: ["getProfile"] });
       toast.success("Added Language Successfully", {
         position: "top-right",
@@ -302,8 +302,8 @@ export default function CandidateOnboarding() {
               Add Education
             </Button>
             <div className="flex flex-col items-center flex-wrap gap-4">
-              {profileData.data.data.education.length > 0 &&
-                profileData.data.data.education.map(
+              {profileData?.data?.data?.education.length > 0 &&
+                profileData?.data?.data.education.map(
                   (data: any, index: number) => (
                     <Card
                       key={index}
@@ -313,15 +313,15 @@ export default function CandidateOnboarding() {
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-between items-center">
                             <h3 className="text-lg font-semibold uppercase">
-                              {data.schoolName}
+                              {data?.schoolName}
                             </h3>
                             <span className="text-sm text-gray-600">
-                              {data.result}
+                              {data?.result}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <Chip className="uppercase" color="primary">
-                              {data.type}
+                              {data?.type}
                             </Chip>
                           </div>
                         </div>
@@ -330,13 +330,15 @@ export default function CandidateOnboarding() {
                         <div className="flex justify-between gap-4 text-sm text-gray-700">
                           <p>
                             <span className="font-medium">Start:</span>{" "}
-                            {new Date(data.startDate).toLocaleDateString(
+                            {new Date(data?.startDate).toLocaleDateString(
                               "en-IN",
                             )}
                           </p>
                           <p>
                             <span className="font-medium">End:</span>{" "}
-                            {new Date(data.endDate).toLocaleDateString("en-IN")}
+                            {new Date(data?.endDate).toLocaleDateString(
+                              "en-IN",
+                            )}
                           </p>
                         </div>
                       </CardBody>
@@ -350,8 +352,8 @@ export default function CandidateOnboarding() {
               Add Experince
             </Button>
             <div className="flex flex-col items-center flex-wrap gap-4">
-              {profileData.data.data.experinces.length > 0 &&
-                profileData.data.data.experinces.map(
+              {profileData?.data?.data?.experinces.length > 0 &&
+                profileData?.data?.data?.experinces.map(
                   (data: any, index: number) => (
                     <Card
                       key={index}
@@ -361,26 +363,28 @@ export default function CandidateOnboarding() {
                         <div className="flex flex-col gap-2">
                           <div className="flex flex-row gap-4 justify-between items-center">
                             <h3 className="text-lg font-semibold uppercase">
-                              {data.companyName}
+                              {data?.companyName}
                             </h3>
                             <span className="text-sm text-gray-600">
-                              {data.postion}
+                              {data?.postion}
                             </span>
                           </div>
                         </div>
                       </CardHeader>
                       <CardBody className="flex flex-col gap-4 items-ceitems-center p-4">
-                        <p>Description {data.description}</p>
+                        <p>Description {data?.description}</p>
                         <div className="flex justify-start gap-4 text-sm text-gray-700">
                           <p>
                             <span className="font-medium">Start Date:</span>{" "}
-                            {new Date(data.startDate).toLocaleDateString(
+                            {new Date(data?.startDate).toLocaleDateString(
                               "en-IN",
                             )}
                           </p>
                           <p>
                             <span className="font-medium">End Date:</span>{" "}
-                            {new Date(data.endDate).toLocaleDateString("en-IN")}
+                            {new Date(data?.endDate).toLocaleDateString(
+                              "en-IN",
+                            )}
                           </p>
                         </div>
                       </CardBody>
@@ -394,19 +398,19 @@ export default function CandidateOnboarding() {
               Add Langauge
             </Button>
             <div className="flex flex-row items-center flex-wrap gap-4">
-              {profileData.data.data.language.length > 0 &&
-                profileData.data.data.language.map(
+              {profileData?.data?.data?.language.length > 0 &&
+                profileData?.data?.data?.language.map(
                   (data: any, index: number) => (
                     <div key={index}>
                       <Card className="w-full">
                         <CardHeader className="flex flex-col gap-2 items-center w-full">
                           <Chip className="uppercase font-bold">
-                            {data.name}
+                            {data?.name}
                           </Chip>
                           <div className="flex flex-row gap-2 items-center">
                             <p className="font-bold text-md">Proffeciney</p>
                             <Chip className="uppercase" color="primary">
-                              {data.levels}
+                              {data?.levels}
                             </Chip>
                           </div>
                         </CardHeader>
@@ -434,9 +438,9 @@ export default function CandidateOnboarding() {
 
           <div className="flex flex-col justify-start items-start w-full gap-2">
             <div className="flex items-center flex-wrap gap-4">
-              {user.skills &&
+              {user?.skills &&
                 user?.skills.length > 0 &&
-                user.skills.map((s: any, index: number) => (
+                user?.skills.map((s: any, index: number) => (
                   <Chip
                     color="secondary"
                     key={index}
