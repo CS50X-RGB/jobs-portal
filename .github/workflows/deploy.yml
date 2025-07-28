@@ -16,25 +16,35 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_KEY }}" > ~/.ssh/id_25519
-          chmod 600 ~/.ssh/id_25519
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} > ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy over SSH
+      - name: 🔍 Debug SSH Key
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-          set -e  # Stop on first error
-          set -x  # Print commands as they run
+          echo "Checking contents of ~/.ssh directory:"
+          ls -la ~/.ssh
 
-          cd /jobs-portal
-          git pull
+          echo "Trying SSH connection..."
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo ✅ Connected Successfully"
 
-          cd /jobdedo-frontend
-          npm run build
+      - name: 🚀 Deploy over SSH
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+            set -x
 
-          cd ../jobdedo-backend
-          npm run build
+            cd /jobs-portal
+            git pull
 
-          cd ..
-          pm2 restart ecosystem.config.js
+            cd /jobdedo-frontend
+            npm install
+            npm run build
+
+            cd ../jobdedo-backend
+            npm install
+            npm run build
+
+            cd ..
+            pm2 restart ecosystem.config.js
           EOF
