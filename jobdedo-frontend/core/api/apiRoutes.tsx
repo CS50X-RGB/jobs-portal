@@ -44,4 +44,8 @@ export const jobRoutes = {
   createInterview: "/jobs/create/interview/",
   getMineInterviews: "/jobs/fetch/interviews",
   rejectCanidate: "/jobs/reject/candidate/",
+  createInvite: "/jobs/create/invite/",
+  getInvitesCount: "/jobs/invites/count",
+  getFullInviteObjects: "/jobs/invites/get",
+  updateInvite: "/jobs/put/invites/",
 };

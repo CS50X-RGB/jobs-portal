@@ -1,14 +1,17 @@
 import { JobProgressStatus } from "../database/models/jobProgressModel";
 import JobsRepo from "../database/repositories/jobsRepo";
 import InterviewRepo from "../database/repositories/interviewRepo";
+import InviteRepo from "../database/repositories/inviteRepo";
 import { Request, Response } from "express";
 
 class JobsService {
   private jobsRepo: JobsRepo;
   private interviewRepo: InterviewRepo;
+  private inviteRepo: InviteRepo;
   constructor() {
     this.jobsRepo = new JobsRepo();
     this.interviewRepo = new InterviewRepo();
+    this.inviteRepo = new InviteRepo();
   }
   public async createJob(req: Request, res: Response) {
     try {
@@ -230,6 +233,91 @@ class JobsService {
       return res.sendError(
         `Error while getting interviews`,
         "Error while getting interviews",
+        400,
+      );
+    }
+  }
+
+  public async createInvite(req: Request, res: Response) {
+    try {
+      const { job_id }: any = req.params;
+      if (!req.user) {
+        return res.sendError(
+          `Error while creating invite`,
+          "Error while creating invite",
+          400,
+        );
+      }
+
+      const { _id, ...other }: any = req.user;
+      const data: any = req.body;
+      const newInvite = await this.inviteRepo.createInvite(_id, job_id, data);
+      return res.sendFormatted(newInvite, "Invite Created", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while creating invite`,
+        "Error while crearing invitee",
+        400,
+      );
+    }
+  }
+
+  public async getInviteCount(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError("User not logged in", "User not logged in", 400);
+      }
+      const { _id, ...other } = req.user;
+      const count_ = await this.inviteRepo.getInvitesCount(_id);
+      console.log(count_, "noubt");
+      return res.sendFormatted(
+        { count: count_ },
+        "Count of invites for user",
+        200,
+      );
+    } catch (error: any) {
+      return res.sendError(
+        "Error while getting invite Count",
+        "Error while getting count",
+        400,
+      );
+    }
+  }
+
+  public async getInvitesByUsers(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(
+          "User not have logged in",
+          "User not logged in",
+          400,
+        );
+      }
+      const { _id, ...other } = req.user;
+      const getInvites = await this.inviteRepo.getInvitesForUser(_id);
+      return res.sendArrayFormatted(getInvites, "Invites Fetched", 200);
+    } catch (error: any) {
+      return res.sendError(
+        "Erorr while sending invites",
+        "Error getting invites",
+        400,
+      );
+    }
+  }
+
+  public async updateInviteById(req: Request, res: Response) {
+    try {
+      const { inviteId } = req.params;
+      const { data } = req.body;
+      const updatedInvite = await this.inviteRepo.updateInvite(
+        inviteId,
+        data.status,
+      );
+      return res.sendFormatted(updatedInvite, "Updated Invite", 200);
+    } catch (error: any) {
+      return res.sendError(
+        "Error while updating invite",
+        "Error while updating invite",
         400,
       );
     }

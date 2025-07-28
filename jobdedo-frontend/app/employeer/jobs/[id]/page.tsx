@@ -47,6 +47,17 @@ export default function SingleJob() {
   const [interviewData, setInterviewData] = useState<any>({});
 
   const {
+    data: usersWithResume,
+    isFetched: isFetchedUsersResume,
+    isFetching: isFetchingUsersResume,
+  } = useQuery({
+    queryKey: ["usersWithResume"],
+    queryFn: () => {
+      return getData(`${accountRoutes.candidatesWithResume}/${id}`, {});
+    },
+  });
+
+  const {
     data: getJob,
     isFetched,
     isFetching,
@@ -173,6 +184,25 @@ export default function SingleJob() {
     },
   });
 
+  const createInvite = useMutation({
+    mutationKey: ["createInvite", id],
+    mutationFn: (data: any) => {
+      return postData(`${jobRoutes.createInvite}${id}`, {}, data);
+    },
+    onSuccess: (data: any) => {
+      toast.success("Invite sent successfully", {
+        position: "top-right",
+      });
+
+      // queryClient.invalidateQueries(["invites", id]); // adjust if needed
+    },
+    onError: (error: any) => {
+      toast.error("Failed to send invite", {
+        position: "top-right",
+      });
+    },
+  });
+
   const rejectCandidate = useMutation({
     mutationKey: ["rejectCandidate", id],
     mutationFn: (data: any) => {
@@ -229,7 +259,7 @@ export default function SingleJob() {
     return lastEntry ?? null;
   };
 
-  if (isFetching && isFetchingCandidates) {
+  if (isFetching && isFetchingCandidates && isFetchingUsersResume) {
     return (
       <div className="flex flex-col items-center justify-center w-full">
         {Array.from({ length: 5 }).map((_, index: number) => (
@@ -436,6 +466,73 @@ export default function SingleJob() {
           <div className="bg-white w-3/4 p-4 rounded-xl text-center">
             <h1 className="text-lg font-semibold">No Applicants Applied</h1>
           </div>
+        )}
+      </div>
+      <div className="flex flex-col justify-start items-center gap-4 w-full">
+        <h1 className="font-bold text-xl">Invite Candidates</h1>
+
+        {usersWithResume?.data?.data?.length > 0 ? (
+          usersWithResume?.data?.data.map((d: any) => (
+            <Card key={d._id}>
+              <CardBody className="flex flex-row items-center justify-between w-full">
+                <div className="flex flex-row items-center justify-between gap-4">
+                  <Avatar
+                    src={d.profile_image}
+                    name={d.name}
+                    className="w-[100px] h-[100px]"
+                  />
+                  <div className="flex flex-col items-center">
+                    <h1 className="font-bold text-gray-700 text-start w-full text-lg">
+                      {d.name}
+                    </h1>
+                    <div className="flex flex-row gap-4 items-center">
+                      <Chip color="primary">
+                        {d.experinces.length} Experiences
+                      </Chip>
+                      <Chip color="secondary">
+                        {d.education.length} Education
+                      </Chip>
+                      <Chip color="primary">{d.language.length} Languages</Chip>
+                    </div>
+                  </div>
+                  {d.resume_link && (
+                    <a
+                      href={d.resume_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline text-sm"
+                    >
+                      📄 View Resume
+                    </a>
+                  )}
+                  {d.invite === null && (
+                    <Button
+                      color="primary"
+                      onPress={() =>
+                        createInvite.mutate({
+                          user: d._id,
+                        })
+                      }
+                    >
+                      Invite Candidate
+                    </Button>
+                  )}
+                  {d.invite && (
+                    <h1 className="text-red-600 font-bold">
+                      {d.invite.status
+                        .split("_")
+                        .map(
+                          (word: any) => word[0].toUpperCase() + word.slice(1),
+                        )
+                        .join(" ")}
+                    </h1>
+                  )}
+                </div>
+              </CardBody>
+            </Card>
+          ))
+        ) : (
+          <p className="text-gray-500 text-xl">No users are available</p>
         )}
       </div>
 

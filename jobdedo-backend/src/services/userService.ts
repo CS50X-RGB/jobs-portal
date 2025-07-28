@@ -592,7 +592,8 @@ class UserService {
 
   public async getUsersWithResume(req: Request, res: Response) {
     try {
-      const users = await this.userRepository.getUsersWithResume();
+      const { jid }: any = req.params;
+      const users = await this.userRepository.getUsersWithResume(jid);
       return res.sendArrayFormatted(users, "Users with resume fetched", 200);
     } catch (error: any) {
       return res.sendError(

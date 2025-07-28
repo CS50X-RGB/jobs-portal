@@ -58,8 +58,8 @@ export default function UserProfileDashboard({ userData }: any) {
         <label className="cursor-pointer" htmlFor="profile-image">
           <Avatar
             className="w-[200px] h-[200px]"
-            name={userData.name}
-            src={userData.profile_image ?? previewUrl ?? undefined}
+            name={userData?.name}
+            src={userData?.profile_image ?? previewUrl ?? undefined}
             size="lg"
           />
         </label>
@@ -73,19 +73,19 @@ export default function UserProfileDashboard({ userData }: any) {
       </CardHeader>
       <CardBody>
         <div className="flex flex-col items-center justify-center">
-          <h1>{userData.name}</h1>
-          <h1>{userData.education[0].schoolName}</h1>
+          <h1>{userData?.name}</h1>
+          <h1>{userData?.education[0]?.schoolName}</h1>
           <h1 className="flex flex-row gap-4 items-center">
             <span>
               {Math.floor(
                 (new Date().getTime() -
-                  new Date(userData.updatedAt).getTime()) /
+                  new Date(userData?.updatedAt).getTime()) /
                   (1000 * 60 * 60 * 24),
               ) === 0
                 ? "Today"
                 : `${Math.floor(
                     (new Date().getTime() -
-                      new Date(userData.updatedAt).getTime()) /
+                      new Date(userData?.updatedAt).getTime()) /
                       (1000 * 60 * 60 * 24),
                   )} days ago`}{" "}
             </span>
@@ -102,11 +102,11 @@ export default function UserProfileDashboard({ userData }: any) {
       <CardFooter className="flex p-2 text-white flex-row gap-4 bg-blue-400 items-center w-full">
         <div className="flex flex-col items-center">
           <p>Search Appearances</p>
-          <p>{userData.searches}</p>
+          <p>{userData?.searches}</p>
         </div>
         <div className="flex flex-col items-center">
           <p>Applied Jobs</p>
-          <p>{userData.applies}</p>
+          <p>{userData?.applies}</p>
         </div>
       </CardFooter>
     </Card>

@@ -9,7 +9,12 @@ import { Card, CardBody, CardHeader, Spinner } from "@heroui/react";
 
 export default function Page() {
   const [page, setPage] = useState<number>(1);
-  const { data: getAllUsers, isFetching } = useQuery({
+  const [pages, setPages] = useState<number>(0);
+  const {
+    data: getAllUsers,
+    isFetching,
+    isFetched,
+  } = useQuery({
     queryKey: ["get-all-users", page],
     queryFn: async () => {
       return await getData(
@@ -18,6 +23,12 @@ export default function Page() {
       );
     },
   });
+
+  useEffect(() => {
+    if (isFetched) {
+      setPages(Math.ceil(getAllUsers?.data?.data?.count / 5));
+    }
+  }, [isFetched]);
 
   if (isFetching) {
     return (
@@ -34,7 +45,7 @@ export default function Page() {
           loadingState={isFetching}
           page={page}
           setPage={setPage}
-          pages={1}
+          pages={pages}
         />
       </div>
     );

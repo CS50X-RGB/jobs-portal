@@ -1,24 +1,23 @@
 module.exports = {
   apps: [
     {
-      name: "inventory-backend",
+      name: "jobdedo-backend",
       script: "node ./dist/index.js",
-      cwd: "./inventory-backend",
+      cwd: "./jobdedo-backend",
       env: {
         NODE_ENV: "production",
-        PORT: 5000
-      }
+        PORT: 9000,
+      },
     },
     {
-      name: "inevntory-frontend",
+      name: "jobdedo-frontend",
       script: "npm",
       args: "start",
-      cwd: "./inevntory-frontend",
+      cwd: "./jobdedo-frontend",
       env: {
         NODE_ENV: "production",
-        PORT: 3000
-      }
-    }
-  ]
-}
-
+        PORT: 3006,
+      },
+    },
+  ],
+};

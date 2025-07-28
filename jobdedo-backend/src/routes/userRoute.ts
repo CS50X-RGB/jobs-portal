@@ -104,7 +104,7 @@ router.get(
 );
 
 router.get(
-  "/canidates/with-resume",
+  "/canidates/with-resume/:jid",
   userMiddleware.verify.bind(userMiddleware),
   userService.getUsersWithResume.bind(userService),
 );

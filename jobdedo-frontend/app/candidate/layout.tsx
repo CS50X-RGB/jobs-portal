@@ -1,15 +1,27 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { getData } from "@/core/api/apiHandler";
-import { accountRoutes } from "@/core/api/apiRoutes";
+import { accountRoutes, jobRoutes } from "@/core/api/apiRoutes";
 import React, { useEffect, useState } from "react";
-import { Spinner, Chip, Button, User, Link } from "@heroui/react";
+import { Spinner, Chip, Button, User, Link, Badge } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { currentUser } from "@/core/api/localStorageKeys";
+import { Bell } from "lucide-react";
 
 export default function Candidate({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>({});
+
+  const {
+    data: getCountInvites,
+    isFetched: isFetchedInvites,
+    isFetching: isFetchingInvites,
+  } = useQuery({
+    queryKey: ["getCountInvites"],
+    queryFn: () => {
+      return getData(jobRoutes.getInvitesCount, {});
+    },
+  });
 
   const {
     data: getProfile,
@@ -31,6 +43,7 @@ export default function Candidate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isFetched && getProfile?.data) {
       const permissions: any[] = [];
+
       if (getProfile.data.data.role && getProfile.data.data.role.permissions) {
         getProfile?.data?.data?.role?.permissions.map((p: any) => {
           const obj = {
@@ -65,7 +78,7 @@ export default function Candidate({ children }: { children: React.ReactNode }) {
     }
   }, [isFetched, getProfile]);
 
-  if (isFetching) {
+  if (isFetching && isFetchedInvites) {
     return (
       <div className="flex w-screen h-screen justify-center items-center">
         <Spinner title="Loading Admin Data" color="primary" />
@@ -106,17 +119,39 @@ export default function Candidate({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="flex flex-row gap-4 p-4">
+          <Button
+            onPress={() => router.push("/candidate/invites")}
+            isIconOnly
+            variant="light"
+            radius="full"
+          >
+            <Badge
+              content={getCountInvites?.data?.data?.count}
+              color="danger"
+              shape="circle"
+              placement="top-right"
+            >
+              <Bell className="w-6 h-6 text-gray-700" />
+            </Badge>
+          </Button>
           <User
             avatarProps={{
-              src: "https://avatars.githubusercontent.com/u/30373425?v=4",
+              src:
+                getProfile?.data?.data?.profile_image ||
+                "https://avatars.githubusercontent.com/u/30373425?v=4",
             }}
             description={
-              <Link href="" size="sm">
+              <Link
+                href={`mailto:${user.email}`}
+                size="sm"
+                className="text-sm text-blue-600"
+              >
                 {user.email}
               </Link>
             }
             name={user.name}
           />
+
           <Button onPress={handleLogout} color="danger">
             Logout
           </Button>

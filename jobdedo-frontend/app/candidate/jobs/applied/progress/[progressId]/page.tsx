@@ -34,6 +34,8 @@ export default function ProgressUpdateJob() {
   const generateStatus = (status: any) => {
     if (status === "resume_viewed") {
       return "Resume Viewed";
+    } else if (status === "interview_added") {
+      return "Interview Added";
     } else {
       return status;
     }

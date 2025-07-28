@@ -67,4 +67,28 @@ router.get(
   userMiddleware.verify.bind(userMiddleware),
   jobsService.getInterviewsByUserId.bind(jobsService),
 );
+
+router.post(
+  "/create/invite/:job_id",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.createInvite.bind(jobsService),
+);
+
+router.get(
+  "/invites/count",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getInviteCount.bind(jobsService),
+);
+
+router.get(
+  "/invites/get",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getInvitesByUsers.bind(jobsService),
+);
+
+router.put(
+  "/put/invites/:inviteId",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.updateInviteById.bind(jobsService),
+);
 export default router;

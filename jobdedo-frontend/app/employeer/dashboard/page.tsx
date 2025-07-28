@@ -11,8 +11,7 @@ export default function Dashboard() {
     { name: "Dashboard", link: "/employeer/dashboard" },
     { name: "Create Job", link: "/employeer/jobs/create" },
     { name: "Jobs Created", link: "/employeer/jobs/" },
-    { name: "View Candidates", link: "/employeer/talent" },
-    { name: "Settings", link: "/settings" },
+    // { name: "View Candidates", link: "/employeer/talent" },
   ];
 
   const {
@@ -35,13 +34,13 @@ export default function Dashboard() {
     location = "",
   }: {
     title: string;
-    interviewDate: string; // date only
-    startTime: string; // contains hour/minute info
+    interviewDate: string;
+    startTime: string;
     endTime: string;
     description?: string;
     location?: string;
   }) {
-    const date = new Date(interviewDate); // e.g. 2025-08-01
+    const date = new Date(interviewDate);
 
     const start = new Date(startTime);
     const end = new Date(endTime);

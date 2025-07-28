@@ -90,6 +90,9 @@ export default function CandidateOnboarding() {
     if (profileData?.data?.data?.phoneno) {
       handleSet("user", "phoneno", profileData.data.data.phoneno);
     }
+    // if (profileData?.data?.data?.state) {
+    //   handleSet("user", "state", profileData.data.data.phoneno);
+    // }
     if (profileData?.data?.data?.skills) {
       setUser((prev: any) => ({
         ...prev,
@@ -415,15 +418,20 @@ export default function CandidateOnboarding() {
           </div>
           <Select
             isRequired
-            onChange={(e: any) => handleSet("user", e.target.value, "state")}
+            selectedKeys={user.state ? [user.state] : []}
+            onSelectionChange={(keys: any) => {
+              const selected = Array.from(keys)[0];
+              handleSet("user", "state", selected);
+            }}
             className="max-w-xl"
             label="State"
             placeholder="Select State"
           >
-            {indianStates.map((animal) => (
-              <SelectItem key={animal.key}>{animal.label}</SelectItem>
+            {indianStates.map((state) => (
+              <SelectItem key={state.key}>{state.label}</SelectItem>
             ))}
           </Select>
+
           <div className="flex flex-col justify-start items-start w-full gap-2">
             <div className="flex items-center flex-wrap gap-4">
               {user.skills &&
@@ -595,7 +603,6 @@ export default function CandidateOnboarding() {
           <Select
             isRequired
             onChange={(e: any) => {
-              console.log(e.target.value);
               handleSet("lang", "levels", e.target.value);
             }}
             className="max-w-xl"

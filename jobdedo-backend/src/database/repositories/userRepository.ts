@@ -2,6 +2,8 @@ import mongoose, { ObjectId } from "mongoose";
 import { IUserCreate, IUserCreation } from "../../interfaces/userInterface";
 import User from "../models/userModel";
 import Language from "../models/languangesModel";
+import Jobs from "../models/jobsModel";
+import Invites from "../models/inviteModal";
 import Education from "../models/educationModel";
 import Experince from "../models/experinceModel";
 import CompanyRepo from "./companyRepo";
@@ -207,14 +209,40 @@ class UserRepository {
     }
   }
 
-  public async getUsersWithResume() {
+  public async getUsersWithResume(jobId: any) {
     try {
+      const job = await Jobs.findById(jobId)
+        .populate("applicants", "_id")
+        .select("applicants");
+
+      if (!job) {
+        throw new Error("Job not found");
+      }
+
+      const applicantIds = job.applicants.map((a: any) => a._id.toString());
+      const invites: any = await Invites.find({ jobId }).populate(
+        "employee jobId to",
+      );
+      console.log(invites, "invvites");
+
       const users = await User.find({
         resume_link: { $ne: null },
-      });
-      return users;
+        _id: { $nin: applicantIds },
+      }).lean();
+
+      const inviteMap = new Map(
+        invites.map((invite: any) => [invite.to?._id.toString(), invite]),
+      );
+      console.log(inviteMap, "inviteMap");
+
+      const enrichedUsers = users.map((user) => ({
+        ...user,
+        invite: inviteMap.get(user._id.toString()) || null,
+      }));
+
+      return enrichedUsers;
     } catch (error: any) {
-      throw new Error(`Error while getting users`);
+      throw new Error(`Error while getting users: ${error.message}`);
     }
   }
 }
