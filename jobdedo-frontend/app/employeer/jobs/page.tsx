@@ -32,7 +32,7 @@ export default function Jobs() {
   }
 
   return (
-    <div className="flex flex-row flex-wrap items-center p-5 justify-center">
+    <div className="flex flex-row flex-wrap items-center p-5 gap-4 justify-center">
       {getJobs?.data.data.map((job: any, index: number) => {
         return <JobsCard jobData={job} key={index} />;
       })}

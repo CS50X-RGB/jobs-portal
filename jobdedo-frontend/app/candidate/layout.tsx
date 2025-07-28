@@ -100,9 +100,12 @@ export default function Candidate({ children }: { children: React.ReactNode }) {
     <>
       <div className="flex flex-col-reverse md:flex-row justify-between p-4 w-full items-center">
         <div className="flex flex-col p-4 gap-2">
-          <h1 className="text-2xl font-bold">
+          <Link
+            onClick={() => router.push("/candidate/dashboard")}
+            className="text-2xl font-bold"
+          >
             {getProfile?.data?.data?.role?.name} View
-          </h1>
+          </Link>
           <div className="flex flex-wrap gap-4 flex-row">
             {chips.map((c: any, index: number) => {
               return (
