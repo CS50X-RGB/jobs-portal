@@ -1,6 +1,7 @@
 "use client";
 import { queryClient } from "@/app/providers";
 import CompanyCard from "@/components/Card/CompanyCard";
+import PolarAreaWrapper from "@/components/Graphs/PolarArea";
 import { getData } from "@/core/api/apiHandler";
 import { jobRoutes } from "@/core/api/apiRoutes";
 import { Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react";
@@ -37,6 +38,17 @@ export default function Dashboard() {
     queryKey: ["companyjobs"],
     queryFn: () => {
       return getData(jobRoutes.getMyCompanyJobs, {});
+    },
+  });
+
+  const {
+    data: jobDistribution,
+    isFetched: isFetchedJobsDistribution,
+    isFetching: isFetchingJobsDistribution,
+  } = useQuery({
+    queryKey: ["jobsDistribution"],
+    queryFn: () => {
+      return getData(jobRoutes.getCompanyDistribution, {});
     },
   });
 
@@ -106,7 +118,18 @@ export default function Dashboard() {
         </div>
         <CompanyCard companyInfo={profileData.data.data.company} count={10} />
       </div>
-
+      {jobDistribution && jobDistribution.data.data && (
+        <div className="flex flex-col items-start">
+          <Card className="w-full">
+            <CardHeader className="text-blue-500 font-bold">
+              Job Creation By Employee Distribution
+            </CardHeader>
+            <CardBody>
+              <PolarAreaWrapper data={jobDistribution?.data?.data} />
+            </CardBody>
+          </Card>
+        </div>
+      )}
       <div className="flex flex-col rounded-sm bg-white p-5 items-center gap-4">
         <h1 className="font-bold text-start text-xl text-blue-400 ">
           Upcoming Interviews

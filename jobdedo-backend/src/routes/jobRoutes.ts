@@ -97,4 +97,10 @@ router.get(
   userMiddleware.verify.bind(userMiddleware),
   jobsService.getJobsFromCompany.bind(jobsService),
 );
+
+router.get(
+  "/distribution",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getJobsDistribution.bind(jobsService),
+);
 export default router;

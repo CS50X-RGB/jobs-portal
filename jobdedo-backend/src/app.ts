@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "https://jobs-portal.swyftcore.in"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),

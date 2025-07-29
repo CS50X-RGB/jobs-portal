@@ -343,5 +343,22 @@ class JobsService {
       );
     }
   }
+
+  public async getJobsDistribution(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError("User not logged in", "User not logged in", 400);
+      }
+      const { _id, ...other } = req.user;
+      const jobDistribution = await this.jobsRepo.jobsCreatedDistribution(_id);
+      return res.sendArrayFormatted(jobDistribution, "Job Distribution", 200);
+    } catch (error: any) {
+      return res.sendError(
+        "Error while getting jobs",
+        "Error while jobs count",
+        400,
+      );
+    }
+  }
 }
 export default JobsService;

@@ -242,28 +242,26 @@ class JobsRepo {
     }
   }
 
-  public async jobsCreatedDistribution() {
+  public async jobsCreatedDistribution(userId: any) {
     try {
+      const user: any = await User.findById(userId);
       const jobDistribution = await Job.aggregate([
+        { $match: { company: user.company } },
         {
           $group: {
             _id: "$createdBy",
-            jobCount: {
-              $sum: 1,
-            },
+            jobCount: { $sum: 1 },
           },
         },
         {
           $lookup: {
-            from: "user",
-            localField: "createdBy",
+            from: "users",
+            localField: "_id",
             foreignField: "_id",
             as: "user",
           },
         },
-        {
-          $unwind: "$user",
-        },
+        { $unwind: "$user" },
         {
           $project: {
             _id: 0,
@@ -273,6 +271,8 @@ class JobsRepo {
           },
         },
       ]);
+      // console.log("✅ Final Job Distribution:", jobDistribution);
+
       return jobDistribution;
     } catch (error: any) {
       throw new Error(`Error while getting `);
