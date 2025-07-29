@@ -225,6 +225,59 @@ class JobsRepo {
       throw new Error(`Error while getting progress Updates`);
     }
   }
+
+  public async getJobsFromCompany(userId: any) {
+    try {
+      const user = await User.findById(userId).select("company").lean();
+      if (!user) {
+        throw new Error(`User not found`);
+      }
+      const jobs = await Job.find({
+        company: user.company,
+      }).lean();
+
+      return jobs;
+    } catch (error: any) {
+      throw new Error(`Error while getting jobs from company`);
+    }
+  }
+
+  public async jobsCreatedDistribution() {
+    try {
+      const jobDistribution = await Job.aggregate([
+        {
+          $group: {
+            _id: "$createdBy",
+            jobCount: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "user",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: "$user",
+        },
+        {
+          $project: {
+            _id: 0,
+            userId: "$user._id",
+            name: "$user.name",
+            jobCount: 1,
+          },
+        },
+      ]);
+      return jobDistribution;
+    } catch (error: any) {
+      throw new Error(`Error while getting `);
+    }
+  }
 }
 
 export default JobsRepo;

@@ -91,4 +91,10 @@ router.put(
   userMiddleware.verify.bind(userMiddleware),
   jobsService.updateInviteById.bind(jobsService),
 );
+
+router.get(
+  "/get/company/",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.getJobsFromCompany.bind(jobsService),
+);
 export default router;

@@ -1,4 +1,6 @@
 "use client";
+import { queryClient } from "@/app/providers";
+import CompanyCard from "@/components/Card/CompanyCard";
 import { getData } from "@/core/api/apiHandler";
 import { jobRoutes } from "@/core/api/apiRoutes";
 import { Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react";
@@ -14,6 +16,8 @@ export default function Dashboard() {
     // { name: "View Candidates", link: "/employeer/talent" },
   ];
 
+  const profileData: any = queryClient.getQueryData(["getProfile"]);
+
   const {
     data: getInterviews,
     isFetched: isFetchedInterviews,
@@ -22,6 +26,17 @@ export default function Dashboard() {
     queryKey: ["interviews"],
     queryFn: () => {
       return getData(jobRoutes.getMineInterviews, {});
+    },
+  });
+
+  const {
+    data: getCompanyJobs,
+    isFetched: isFetchedCompanyJobs,
+    isFetching: isFetchingCompanyJobs,
+  } = useQuery({
+    queryKey: ["companyjobs"],
+    queryFn: () => {
+      return getData(jobRoutes.getMyCompanyJobs, {});
     },
   });
 
@@ -73,20 +88,23 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-row justify-between w-full">
-      <div className="w-64 bg-gray-100 border-r p-4">
-        <h2 className="text-lg font-semibold mb-4">Menu</h2>
-        <ul className="space-y-2">
-          {menu.map((item: any, index: number) => (
-            <li key={index}>
-              <button
-                onClick={() => handleMenuClick(item)}
-                className="w-full text-left px-4 py-2 rounded hover:bg-gray-200"
-              >
-                {item.name}
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div className="flex flex-col items-center gap-4 p-4">
+        <div className="w-64 bg-gray-100 border-r p-4">
+          <h2 className="text-lg font-semibold mb-4">Menu</h2>
+          <ul className="space-y-2">
+            {menu.map((item: any, index: number) => (
+              <li key={index}>
+                <button
+                  onClick={() => handleMenuClick(item)}
+                  className="w-full text-left px-4 py-2 rounded hover:bg-gray-200"
+                >
+                  {item.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <CompanyCard companyInfo={profileData.data.data.company} count={10} />
       </div>
 
       <div className="flex flex-col rounded-sm bg-white p-5 items-center gap-4">

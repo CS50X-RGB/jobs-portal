@@ -48,4 +48,5 @@ export const jobRoutes = {
   getInvitesCount: "/jobs/invites/count",
   getFullInviteObjects: "/jobs/invites/get",
   updateInvite: "/jobs/put/invites/",
+  getMyCompanyJobs: "/jobs/get/company/",
 };

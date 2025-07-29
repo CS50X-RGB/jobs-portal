@@ -322,5 +322,26 @@ class JobsService {
       );
     }
   }
+
+  public async getJobsFromCompany(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError(
+          "Error beacuse user not logged in",
+          "User not logged in",
+          400,
+        );
+      }
+      const { _id, ...other } = req.user;
+      const jobs = await this.jobsRepo.getJobsFromCompany(_id);
+      return res.sendArrayFormatted(jobs, "Jobs Object Found", 200);
+    } catch (error) {
+      return res.sendError(
+        "Error while getting jobs",
+        "Jobs Error while getting from company",
+        400,
+      );
+    }
+  }
 }
 export default JobsService;
