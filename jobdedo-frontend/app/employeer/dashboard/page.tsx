@@ -30,16 +30,16 @@ export default function Dashboard() {
     },
   });
 
-  const {
-    data: getCompanyJobs,
-    isFetched: isFetchedCompanyJobs,
-    isFetching: isFetchingCompanyJobs,
-  } = useQuery({
-    queryKey: ["companyjobs"],
-    queryFn: () => {
-      return getData(jobRoutes.getMyCompanyJobs, {});
-    },
-  });
+  // const {
+  //   data: getCompanyJobs,
+  //   isFetched: isFetchedCompanyJobs,
+  //   isFetching: isFetchingCompanyJobs,
+  // } = useQuery({
+  //   queryKey: ["companyjobs"],
+  //   queryFn: () => {
+  //     return getData(jobRoutes.getMyCompanyJobs, {});
+  //   },
+  // });
 
   const {
     data: jobDistribution,
