@@ -4,7 +4,14 @@ import CompanyCard from "@/components/Card/CompanyCard";
 import PolarAreaWrapper from "@/components/Graphs/PolarArea";
 import { getData } from "@/core/api/apiHandler";
 import { jobRoutes } from "@/core/api/apiRoutes";
-import { Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+  Spinner,
+} from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
@@ -118,7 +125,10 @@ export default function Dashboard() {
         </div>
         <CompanyCard companyInfo={profileData.data.data.company} count={10} />
       </div>
-      {jobDistribution && jobDistribution.data.data && (
+      {isFetchingJobsDistribution ? (
+        <Spinner>Loading job distribution...</Spinner>
+      ) : isFetchedJobsDistribution &&
+        jobDistribution?.data?.data?.length > 0 ? (
         <div className="flex flex-col items-start">
           <Card className="w-full">
             <CardHeader className="text-blue-500 font-bold">
@@ -129,7 +139,10 @@ export default function Dashboard() {
             </CardBody>
           </Card>
         </div>
+      ) : (
+        <p>No job distribution data available.</p>
       )}
+
       <div className="flex flex-col rounded-sm bg-white p-5 items-center gap-4">
         <h1 className="font-bold text-start text-xl text-blue-400 ">
           Upcoming Interviews
