@@ -94,6 +94,23 @@ class JobsRepo {
       throw new Error(`Error while getting jobs`);
     }
   }
+  public async getJobsByCompany(page: any, offset: any, userId: any) {
+    try {
+      const user: any = await User.findById(userId);
+      if (!user) {
+        throw new Error(`User not found`);
+      }
+      const allJobs: any = await Job.find({
+        company: user.company,
+      })
+        .populate("company applicants")
+        .skip((page - 1) * 10)
+        .limit(offset);
+      return allJobs;
+    } catch (error: any) {
+      throw new Error(`Error while getting jobs`);
+    }
+  }
   public async getJobById(jobId: any) {
     try {
       const jobEntity = await Job.findById(jobId)
@@ -229,9 +246,11 @@ class JobsRepo {
   public async getJobsFromCompany(userId: any) {
     try {
       const user = await User.findById(userId).select("company").lean();
+
       if (!user) {
         throw new Error(`User not found`);
       }
+
       const jobs = await Job.find({
         company: user.company,
       }).lean();

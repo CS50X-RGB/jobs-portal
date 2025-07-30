@@ -17,7 +17,7 @@ export default function Jobs() {
   } = useQuery({
     queryKey: ["getJobs"],
     queryFn: () => {
-      return getData(`${jobRoutes.getBom}${page}/5`, {});
+      return getData(`${jobRoutes.getJobsCompany}`, {});
     },
   });
 

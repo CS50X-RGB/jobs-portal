@@ -17,13 +17,13 @@ export default function Jobs() {
   } = useQuery({
     queryKey: ["getJobs"],
     queryFn: () => {
-      return getData(`${jobRoutes.getBom}${page}/5`, {});
+      return getData(`${jobRoutes.getBom}`, {});
     },
   });
 
   if (isFetching) {
     return (
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex flex-col items-center  gap-[2rem] justify-center w-full">
         {Array.from({ length: 5 }).map((_, index: number) => (
           <BomLoadingCardSkeleton key={index} />
         ))}
@@ -32,10 +32,12 @@ export default function Jobs() {
   }
 
   return (
-    <div className="flex flex-row flex-wrap items-center p-5 justify-center">
-      {getJobs?.data.data.map((job: any, index: number) => {
-        return <JobsCard jobData={job} key={index} />;
-      })}
-    </div>
+    <>
+      <div className="flex flex-row flex-wrap items-center p-5 justify-center">
+        {getJobs?.data.data.map((job: any, index: number) => {
+          return <JobsCard jobData={job} key={index} />;
+        })}
+      </div>
+    </>
   );
 }

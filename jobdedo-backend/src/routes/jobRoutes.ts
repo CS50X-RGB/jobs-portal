@@ -12,7 +12,13 @@ router.post(
   jobsService.createJob.bind(jobsService),
 );
 
-router.get("/get/:page/:offset", jobsService.getJobs.bind(jobsService));
+router.get("/get", jobsService.getJobs.bind(jobsService));
+
+// router.get(
+//   "/get/company/:page/:offset",
+//   userMiddleware.verify.bind(userMiddleware),
+//   jobsService.getJobsSameCompany.bind(jobsService),
+// );
 
 router.put(
   "/apply/:jobId",
@@ -99,7 +105,7 @@ router.put(
 );
 
 router.get(
-  "/get/company/",
+  "/company/",
   userMiddleware.verify.bind(userMiddleware),
   jobsService.getJobsFromCompany.bind(jobsService),
 );

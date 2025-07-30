@@ -49,6 +49,28 @@ class JobsService {
     }
   }
 
+  public async getJobsSameCompany(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError("User not logged in", "User not logged in", 400);
+      }
+      const { _id, ...other }: any = req.user;
+      const { page, offset }: any = req.params;
+      const getJobsOject = await this.jobsRepo.getJobsByCompany(
+        page,
+        offset,
+        _id,
+      );
+      return res.sendArrayFormatted(getJobsOject, "Jobs Object Fetched", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while getting job objects`,
+        "Jobs Object fetching error",
+        400,
+      );
+    }
+  }
+
   public async applyJob(req: Request, res: Response) {
     try {
       if (!req.user) {

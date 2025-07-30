@@ -34,7 +34,8 @@ export const partNumbersRoutes = {
 
 export const jobRoutes = {
   createJob: "/jobs/create",
-  getBom: "/jobs/get/",
+  getBom: "/jobs/get",
+  getJobsCompany: "/jobs/company",
   getSingleJob: "/jobs/jobs/get/",
   apply: "/jobs/apply/",
   getCandidates: "/jobs/get/applicants/employeer/",
