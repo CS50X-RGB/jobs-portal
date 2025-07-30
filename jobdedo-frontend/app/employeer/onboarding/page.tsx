@@ -234,7 +234,6 @@ export default function OnBoarding() {
               </Autocomplete>
             ) : (
               <>
-                <h1>Hello</h1>
                 <Autocomplete
                   className="max-w-xl"
                   inputValue={list.filterText}
