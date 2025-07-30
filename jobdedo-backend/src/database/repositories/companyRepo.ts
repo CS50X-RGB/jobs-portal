@@ -116,11 +116,14 @@ class CompanyRepo {
         return [];
       }
 
-      const filteredUsers = company.users.filter(
-        (id: any) => id._id.toString() !== userId.toString(),
-      );
+      const updatedUsers = company.users.map((user: any) => {
+        if (user._id.toString() === userId.toString()) {
+          return { ...user, name: "You" }; // rename the current user
+        }
+        return user;
+      });
 
-      return filteredUsers;
+      return updatedUsers;
     } catch (error) {
       throw new Error(`Error while getting employees from company`);
     }
