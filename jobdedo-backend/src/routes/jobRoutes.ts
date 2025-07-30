@@ -62,6 +62,12 @@ router.put(
   jobsService.rejectCandidate.bind(jobsService),
 );
 
+router.put(
+  "/shortlist/candidate/:jid",
+  userMiddleware.verify.bind(userMiddleware),
+  jobsService.shortlistCandidate.bind(jobsService),
+);
+
 router.get(
   "/fetch/interviews",
   userMiddleware.verify.bind(userMiddleware),

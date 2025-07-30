@@ -4,7 +4,14 @@ import { queryClient } from "@/app/providers";
 import UserProfileDashboard from "@/components/Card/UserProfileDashboard";
 import { getData } from "@/core/api/apiHandler";
 import { jobRoutes } from "@/core/api/apiRoutes";
-import { Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+} from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
@@ -113,6 +120,58 @@ export default function Dashboard() {
             </div>
           ) : (
             getInterviews?.data?.data?.map((interview: any, index: any) => {
+              const formatTime = (time: any) => {
+                const dateObj = new Date(time);
+
+                const hours = dateObj.getHours();
+                const minutes = dateObj.getMinutes();
+
+                return `${hours}:${minutes < 10 ? "0" + minutes : minutes}`;
+              };
+
+              const inMinutes = (a: any) => {
+                const date = new Date(a); // convert ISO string to Date
+                return date.getHours() * 60 + date.getMinutes();
+              };
+              const today = new Date();
+              const curr_time = formatTime(today);
+              const start_time = formatTime(interview.startTime);
+              const end_time = formatTime(interview.endTime);
+
+              const interviewDate = new Date(interview.interviewDate);
+
+              // Date-only comparisons
+              const isToday =
+                today.getFullYear() === interviewDate.getFullYear() &&
+                today.getMonth() === interviewDate.getMonth() &&
+                today.getDate() === interviewDate.getDate();
+
+              const isBefore = interviewDate > today && !isToday;
+
+              const isAfter = interviewDate < today && !isToday;
+
+              const generateStatus = () => {
+                if (isBefore) {
+                  return "Upcoming";
+                }
+                if (isToday) {
+                  const current = inMinutes(today);
+                  const start = inMinutes(interview.startTime);
+                  const end = inMinutes(interview.endTime);
+
+                  if (current >= start && current <= end) {
+                    return "Currently Running";
+                  } else if (current < start) {
+                    return "Upcoming";
+                  } else {
+                    return "Interview Occurred";
+                  }
+                }
+                if (isAfter) {
+                  return "Interview Occurred";
+                }
+              };
+
               const calendarUrl = generateGoogleCalendarUrl({
                 title: interview.jobId.title,
                 interviewDate: interview.interviewDate,
@@ -157,9 +216,19 @@ export default function Dashboard() {
                       rel="noopener noreferrer"
                       className="mt-2"
                     >
-                      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Add to Google Calendar
-                      </button>
+                      {generateStatus() !== "Interview Occurred" && (
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                          Add to Google Calendar
+                        </button>
+                      )}
+                      {generateStatus() === "Interview Occurred" && (
+                        <Chip
+                          color="danger"
+                          className="w-full p-5 items-center"
+                        >
+                          Interview Occurred
+                        </Chip>
+                      )}
                     </a>
                   </CardFooter>
                 </Card>

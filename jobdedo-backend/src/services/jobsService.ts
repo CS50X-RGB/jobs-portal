@@ -185,6 +185,30 @@ class JobsService {
     }
   }
 
+  public async shortlistCandidate(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.sendError("User not logged in", "User not logged in", 400);
+      }
+      const { _id, ...other } = req.user;
+      const { jid }: any = req.params;
+      const { data } = req.body;
+      const jobsResume = await this.jobsRepo.updateJobProgress(
+        _id,
+        jid,
+        JobProgressStatus.SHORTLISTED,
+        data.userId,
+      );
+      return res.sendFormatted(jobsResume, "Jobs Progress Update", 200);
+    } catch (error: any) {
+      return res.sendError(
+        `Error while updating shortlisted candidate`,
+        "Rejecting Candidate",
+        400,
+      );
+    }
+  }
+
   public async createInterview(req: Request, res: Response) {
     try {
       if (!req.user) {

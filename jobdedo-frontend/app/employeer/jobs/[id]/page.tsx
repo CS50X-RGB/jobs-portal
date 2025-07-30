@@ -23,7 +23,10 @@ import { Time } from "@internationalized/date";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Briefcase,
+  CalendarCheck,
+  CalendarCheck2,
   CalendarClock,
+  Check,
   IndianRupee,
   MapPin,
   XCircle,
@@ -228,6 +231,31 @@ export default function SingleJob() {
     },
   });
 
+  const shortListCandidate = useMutation({
+    mutationKey: ["shortListCandidate", id],
+    mutationFn: (data: any) => {
+      return putData(
+        `${jobRoutes.shortlist}${id}`,
+        {},
+        {
+          data,
+        },
+      );
+    },
+    onSuccess: (data: any) => {
+      toast.success("Shortlist Candidate", {
+        position: "top-right",
+      });
+      queryClient.invalidateQueries();
+    },
+    onError: (error: any) => {
+      console.log(error, "Error");
+      toast.error("Error while ShortList Candidate", {
+        position: "top-right",
+      });
+    },
+  });
+
   function getTimeAgo(createdAt: string) {
     const created = new Date(createdAt);
     const now = new Date();
@@ -326,8 +354,15 @@ export default function SingleJob() {
           <div className="flex flex-col gap-4 w-3/4 p-6 rounded-xl">
             {getJobCandidates?.data?.data?.applicants.map(
               (applicant: any, index: number) => {
+                const status = getProgressStatusTwo(applicant._id);
+
                 return (
-                  <Card key={applicant._id}>
+                  <Card
+                    key={applicant._id}
+                    className={
+                      status?.progress === "shortlisted" ? "bg-green-300" : ""
+                    }
+                  >
                     <CardBody className="flex flex-row items-center justify-between w-full">
                       <div className="flex flex-row items-center justify-between gap-4">
                         <Avatar
@@ -354,6 +389,7 @@ export default function SingleJob() {
                       </div>
                       {(() => {
                         const status = getProgressStatusTwo(applicant._id);
+                        console.log(status?.progress, "Progress");
 
                         if (status?.progress === "applied") {
                           return (
@@ -372,23 +408,134 @@ export default function SingleJob() {
                             </Link>
                           );
                         } else if (status?.progress === "interview_added") {
+                          const latest_interview =
+                            status.interviews[status.interviews.length - 1];
+                          const today = new Date();
+
+                          const formatTime = (time: any) => {
+                            const dateObj = new Date(time);
+
+                            const hours = dateObj.getHours();
+                            const minutes = dateObj.getMinutes();
+
+                            return `${hours}:${minutes < 10 ? "0" + minutes : minutes}`;
+                          };
+
+                          const inMinutes = (a: any) => {
+                            const date = new Date(a); // convert ISO string to Date
+                            return date.getHours() * 60 + date.getMinutes();
+                          };
+
+                          const curr_time = formatTime(today);
+                          const start_time = formatTime(
+                            latest_interview.startTime,
+                          );
+                          const end_time = formatTime(latest_interview.endTime);
+
+                          const interviewDate = new Date(
+                            latest_interview.interviewDate,
+                          );
+
+                          // Date-only comparisons
+                          const isToday =
+                            today.getFullYear() ===
+                              interviewDate.getFullYear() &&
+                            today.getMonth() === interviewDate.getMonth() &&
+                            today.getDate() === interviewDate.getDate();
+
+                          const isBefore = interviewDate > today && !isToday;
+
+                          const isAfter = interviewDate < today && !isToday;
+
+                          const generateStatus = () => {
+                            if (isBefore) {
+                              return "Upcoming";
+                            }
+                            if (isToday) {
+                              const current = inMinutes(today);
+                              const start = inMinutes(
+                                latest_interview.startTime,
+                              );
+                              const end = inMinutes(latest_interview.endTime);
+
+                              if (current >= start && current <= end) {
+                                return "Currently Running";
+                              } else if (current < start) {
+                                return "Upcoming";
+                              } else {
+                                return "Interview Occurred";
+                              }
+                            }
+                            if (isAfter) {
+                              return "Interview Occurred";
+                            }
+                          };
+
                           return (
                             <div className="flex flex-col items-center gap-4">
-                              <Button
-                                startContent={<CalendarClock />}
-                                color="primary"
-                                variant="shadow"
-                                onPress={() => {
-                                  setInterviewData(
-                                    status.interviews[
-                                      status.interviews.length - 1
-                                    ],
-                                  );
-                                  onOpenInterview();
-                                }}
-                              >
-                                Sceduled Interview
-                              </Button>
+                              {generateStatus() !== "Interview Occurred" && (
+                                <Button
+                                  startContent={
+                                    generateStatus() === "Upcoming" ||
+                                    generateStatus() === "Currently Running" ? (
+                                      <CalendarCheck2 />
+                                    ) : generateStatus() ===
+                                      "Interview Occurred" ? (
+                                      <CalendarCheck />
+                                    ) : (
+                                      <CalendarClock />
+                                    )
+                                  }
+                                  color={
+                                    generateStatus() === "Upcoming" ||
+                                    generateStatus() === "Currently Running"
+                                      ? "success"
+                                      : generateStatus() ===
+                                          "Interview Occurred"
+                                        ? "danger"
+                                        : "primary"
+                                  }
+                                  variant="shadow"
+                                  onPress={() => {
+                                    setInterviewData(
+                                      status.interviews[
+                                        status.interviews.length - 1
+                                      ],
+                                    );
+                                    onOpenInterview();
+                                  }}
+                                >
+                                  {generateStatus()}
+                                </Button>
+                              )}
+                              {generateStatus() === "Interview Occurred" && (
+                                <div className="flex flex-row-reverse gap-4 items-center">
+                                  <Button
+                                    variant="ghost"
+                                    onClick={() =>
+                                      rejectCandidate.mutate({
+                                        userId: applicant._id,
+                                      })
+                                    }
+                                    className="flex items-center gap-2 text-red-600"
+                                  >
+                                    <XCircle size={16} />
+                                    Reject
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    onClick={() =>
+                                      shortListCandidate.mutate({
+                                        userId: applicant._id,
+                                      })
+                                    }
+                                    className="flex items-center gap-2 text-green-600"
+                                  >
+                                    <Check size={16} />
+                                    Shortlist
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           );
                         } else if (status?.progress === "resume_viewed") {
