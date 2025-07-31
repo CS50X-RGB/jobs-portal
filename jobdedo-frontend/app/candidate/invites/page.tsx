@@ -59,35 +59,37 @@ export default function InvitePage() {
                     <p className="text-xs text-blue-500 mt-1">New Invite</p>
                   )}
                 </div>
-                <div className="flex flex-row items-center gap-4 p-4">
-                  <Button
-                    size="sm"
-                    color="danger"
-                    variant="flat"
-                    onPress={(e) => {
-                      updateInvite.mutate({
-                        id: invite._id,
-                        data: { status: "invite_rejected" },
-                      });
-                    }}
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    size="sm"
-                    color="success"
-                    variant="flat"
-                    onPress={(e) => {
-                      updateInvite.mutate({
-                        id: invite._id,
-                        data: { status: "invite_viewed" },
-                      });
-                      router.push(`/candidate/jobs/${invite.jobId._id}`);
-                    }}
-                  >
-                    Accept
-                  </Button>
-                </div>
+                {isNew && (
+                  <div className="flex flex-row items-center gap-4 p-4">
+                    <Button
+                      size="sm"
+                      color="danger"
+                      variant="flat"
+                      onPress={(e) => {
+                        updateInvite.mutate({
+                          id: invite._id,
+                          data: { status: "invite_rejected" },
+                        });
+                      }}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      color="success"
+                      variant="flat"
+                      onPress={(e) => {
+                        updateInvite.mutate({
+                          id: invite._id,
+                          data: { status: "invite_viewed" },
+                        });
+                        router.push(`/candidate/jobs/${invite.jobId._id}`);
+                      }}
+                    >
+                      Accept
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardBody>
           </Card>
